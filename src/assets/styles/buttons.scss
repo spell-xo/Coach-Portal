@@ -1,0 +1,80 @@
+.outlined-btn,
+.outlined-btn:focus {
+  height: 42.85px;
+  border-color: #e5e5ea;
+  font-size: 14px;
+  border-radius: 8px;
+  color: #51525c;
+  text-transform: initial;
+  transition: 0.25s;
+  box-shadow: none !important;
+  flex-shrink: 0;
+  flex-grow: 0;
+  p {
+    margin-left: 8px;
+  }
+  &:hover {
+    border-color: black;
+    color: black;
+  }
+  &.red-outlined-btn {
+    border-color: #f04438;
+    background: #fef3f2;
+    color: #f04438;
+    &:hover {
+      border-color: #f04438;
+    }
+  }
+  &.black-outlined-btn {
+    border-color: #51525c;
+    background: rgba(255, 255, 255, 0.3);
+    &:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+  }
+  &.black-btn,
+  &.black-btn:focus {
+    background: black;
+    color: white;
+    &:hover {
+      background: rgb(41, 41, 41);
+      color: white;
+    }
+  }
+
+  &.red-btn,
+  &.red-btn:focus {
+    background: #d92d20;
+    color: white;
+    &:hover {
+      background: #d32a1e;
+      color: white;
+    }
+  }
+
+  &.green-btn,
+  &.green-btn:focus {
+    background: #62ca7a;
+    color: white;
+    &:hover {
+      background: #62ca7a;
+      color: white;
+    }
+  }
+
+  &.min-width {
+    min-width: 100px;
+  }
+}
+
+.rs-btn-loading > .rs-btn-spin:before {
+  border: 2px solid transparent;
+}
+
+.rs-btn-loading > .rs-btn-spin:after {
+  border-color: black transparent transparent;
+}
+
+.rs-btn-start-icon {
+  margin-right: 0;
+}

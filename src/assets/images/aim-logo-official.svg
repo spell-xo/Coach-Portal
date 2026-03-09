@@ -1,0 +1,25 @@
+<!-- Official AIM Logo - Recreated from Design System -->
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- AIM Icon Mark - Angular geometric design -->
+  <g id="aim-icon" transform="translate(0, 10)">
+    <!-- Main angular shield/mark shape -->
+    <path d="M5 5 L15 0 L25 5 L25 35 L15 40 L5 35 Z" fill="currentColor" opacity="0.2"/>
+
+    <!-- Angular "A" cutout design -->
+    <path d="M10 12 L15 8 L20 12 L18 12 L15 15 L12 12 Z" fill="currentColor"/>
+    <rect x="13" y="16" width="4" height="12" fill="currentColor"/>
+    <path d="M8 20 L10 28 L12 20 Z" fill="currentColor"/>
+    <path d="M18 20 L20 28 L22 20 Z" fill="currentColor"/>
+
+    <!-- Bottom progress element -->
+    <rect x="8" y="30" width="14" height="2" fill="currentColor"/>
+    <path d="M22 29 L26 31 L22 33 Z" fill="currentColor"/>
+  </g>
+
+  <!-- AIM Text -->
+  <g id="aim-text" transform="translate(40, 40)">
+    <text font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="700" fill="currentColor">
+      <tspan x="0" y="0">AIM</tspan>
+    </text>
+  </g>
+</svg>

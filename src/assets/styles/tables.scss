@@ -1,0 +1,174 @@
+$tableThBg: #f9f9fc;
+$tableBorderColor: #eaecf0;
+$tableRowHover: #f8fafc;
+
+.main-content {
+  .MuiTableRow-head {
+    background: $tableThBg;
+    border-top: 1px solid $tableBorderColor;
+    border-bottom: 1px solid $tableBorderColor;
+  }
+  .MuiTableCell-head {
+    white-space: nowrap;
+  }
+  .MuiTableCell-head,
+  .MuiTableBody-root .MuiTableRow-root:not(.expand) .MuiTableCell-root {
+    &:first-child {
+      padding-left: 24px; //= main-content-px
+      &.MuiTableCell-paddingCheckbox {
+        padding-left: 16px;
+      }
+    }
+    &:last-child {
+      padding-right: 24px; //= main-content-px
+    }
+    .MuiCheckbox-root {
+      // padding-left: 0;
+    }
+  }
+  .MuiCheckbox-root {
+    // .MuiTouchRipple-root {
+    //   display: none;
+    // }
+    // &:hover {
+    //   background: transparent;
+    // }
+  }
+
+  .MuiTableRow-root {
+    &.Mui-selected {
+      // background: rgba(100, 162, 255, 0.15);
+      background: #fef3f2;
+    }
+  }
+  .MuiTableBody-root .MuiTableRow-root:not(.expand) {
+    border-top: 1px solid $tableBorderColor;
+    .MuiTableCell-root {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    &.MuiTableRow-hover:hover {
+      background: $tableRowHover;
+    }
+  }
+  .expand .MuiTableCell-root {
+    padding: 0;
+  }
+
+  .MuiTableCell-head {
+    font-size: 14px;
+    font-weight: 600;
+    color: #484964;
+  }
+  .MuiTableCell-body {
+    font-size: 14px;
+    letter-spacing: 0;
+    font-size: 14px;
+    .MuiSvgIcon-root {
+      color: #484964;
+    }
+  }
+}
+
+.usersTableToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f9f9fc;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  border: 1px solid #e0e0e0;
+  // &__btns {
+  //   display: flex;
+  //   align-items: center;
+  //   button {
+  //     &:not(:last-child) {
+  //       margin-right: 10px;
+  //     }
+  //   }
+  // }
+  &__dialogList {
+    display: grid;
+    grid-gap: 3px;
+    margin-top: 20px;
+    max-height: 200px;
+    overflow: auto;
+    p {
+      font-size: 13px;
+      color: #344054;
+    }
+  }
+}
+
+.custom-checkbox {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 1px solid #d0d5dd;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  svg {
+    width: 16px;
+    height: auto;
+    color: #667085;
+  }
+}
+
+.MuiSkeleton-root {
+  background: #e3e8ef !important;
+}
+
+.MuiSkeleton-rectangular {
+  border-radius: 8px;
+}
+
+@include lg {
+  .main-content .MuiTableBody-root .MuiTableRow-root:not(.expand) .MuiTableCell-root,
+  .main-content .MuiTableCell-head,
+  .main-content .MuiTablePagination-selectLabel,
+  .main-content .MuiTablePagination-select,
+  .main-content .MuiTablePagination-displayedRows {
+    font-size: 13px;
+  }
+  // .MuiBox-root {
+  //   width: 100%;
+  // }
+}
+
+.country-cell {
+  span {
+    line-height: 70%;
+    font-size: 22px;
+    vertical-align: text-bottom;
+  }
+}
+
+.table-toolbar {
+  &.has-border {
+    border-top: 1px solid #eaecf0;
+  }
+  &.MuiToolbar-root {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    width: 100%;
+    align-items: center;
+    grid-gap: 30px;
+  }
+  &__title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+  &__btns {
+    display: flex;
+    align-items: center;
+    button {
+      &:not(:last-child) {
+        margin-right: 10px;
+      }
+    }
+  }
+}

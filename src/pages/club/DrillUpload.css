@@ -1,0 +1,128 @@
+* {
+  box-sizing: border-box;
+}
+
+/* Bulk Upload Mode */
+.bulk-upload-dropzone {
+  border: 3px dashed #4A90E2;
+  border-radius: 12px;
+  padding: 60px 40px;
+  text-align: center;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.bulk-upload-dropzone:hover,
+.bulk-upload-dropzone.drag-active {
+  background-color: #e9ecef;
+  border-color: #357ABD;
+  transform: scale(1.02);
+}
+
+.bulk-upload-dropzone .upload-icon {
+  width: 80px;
+  height: 80px;
+  color: #4A90E2;
+}
+
+/* Split Video Mode */
+.video-splitter-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.video-splitter-container {
+  flex: 1;
+  max-width: none;
+  margin: 0;
+  padding: 20px 0;
+  width: 100%;
+}
+
+.loading-banner {
+  background-color: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #856404;
+  font-weight: 600;
+}
+
+.timeline-full-width {
+  width: 100%;
+  background-color: #f8f9fa;
+  padding: 0;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  margin-left: 0;
+  margin-right: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+}
+
+.video-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.change-video-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.change-video-btn:hover {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.4);
+}
+
+.reset-timeline-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  pointer-events: all;
+  z-index: 10;
+  position: relative;
+}
+
+.reset-timeline-btn:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
+}
+
+@media (max-width: 768px) {
+  .video-splitter-container {
+    padding: 20px 16px;
+  }
+}

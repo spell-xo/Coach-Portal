@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Jenkins artifact build script for aim-coach-portal-ui
+
+set -e
+
+echo "Starting build for aim-coach-portal-ui..."
+
+# Install dependencies
+echo "Installing dependencies..."
+npm ci
+
+# Build production bundle
+echo "Building production bundle..."
+npm run build
+
+# Create artifact
+echo "Creating artifact..."
+mkdir -p artifact
+cp -r build artifact/
+cp package.json artifact/
+cp pm2.json artifact/
+
+# Create tarball
+tar -czf aim-coach-portal-ui.tar.gz artifact/
+
+# Clean up
+rm -rf artifact
+
+echo "Build complete: aim-coach-portal-ui.tar.gz"

@@ -1,0 +1,116 @@
+name: Deploy to Cloud Run Prod
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-cloudrun-prod
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: 'bp-prod-313218'
+  REGION: 'europe-west2'
+  SERVICE_NAME: 'aim-coach-portal-ui'
+  REGISTRY: 'europe-west2-docker.pkg.dev'
+  REPOSITORY: 'aim-football-prod'
+  WORKLOAD_IDENTITY_PROVIDER: 'projects/751091042333/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
+  SERVICE_ACCOUNT: 'github-actions-deployer@bp-prod-313218.iam.gserviceaccount.com'
+
+jobs:
+  validate-branch:
+    name: Validate Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if branch is master
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/master" ]; then
+            echo "❌ ERROR: Production deployment only allowed from master branch"
+            echo "Current branch: ${{ github.ref }}"
+            echo "Please merge your changes to master before deploying to production"
+            exit 1
+          fi
+          echo "✅ Branch validation passed: deploying from master"
+
+  build-and-deploy:
+    name: Build and Deploy
+    needs: validate-branch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGISTRY }}
+
+      - name: Setup SSH keys for Docker build
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ssh_key
+          chmod 600 ssh_key
+          ssh-keyscan github.com > ssh_known_hosts
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:latest
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:buildcache,mode=max
+          build-args: |
+            REACT_APP_API_URL=/restapi/api/v1
+            REACT_APP_ENV=production
+            REACT_APP_ENVIRONMENT=prod
+            REACT_APP_AI_API_URL=https://ai-restapi.aim-football.com/api
+            REACT_APP_ENABLE_ANALYTICS=true
+            REACT_APP_ENABLE_GROUPS=true
+            REACT_APP_ENABLE_CHALLENGES=true
+            BUILDKIT_INLINE_CACHE=1
+          provenance: false
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+            --region=${{ env.REGION }} \
+            --platform=managed \
+            --service-account=aim-coach-portal-ui-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
+            --allow-unauthenticated \
+            --port=8080 \
+            --memory=256Mi \
+            --cpu=1 \
+            --min-instances=0 \
+            --max-instances=10 \
+            --timeout=60 \
+            --set-env-vars="GCP_PROJECT_ID=${{ env.PROJECT_ID }},ENVIRONMENT=prod"
+
+      - name: Get Service URL
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region=${{ env.REGION }} \
+            --format='value(status.url)')
+          echo "### 🚀 Production Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Service:** ${{ env.SERVICE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** https://coach-portal-ui.aim-football.com" >> $GITHUB_STEP_SUMMARY
+          echo "**Direct URL:** $SERVICE_URL" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

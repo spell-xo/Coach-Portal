@@ -1,0 +1,294 @@
+/**
+ * Print styles for PDF export
+ * These styles ensure proper page breaks and formatting when exporting reports to PDF
+ * Based on PRD requirements for content-aware pagination
+ */
+
+@media print {
+  /* ==========================================================================
+     Page Setup & Dimensions (FR-6, FR-12)
+     ========================================================================== */
+  @page {
+    size: A4; /* Can be overridden to 'Letter' */
+    margin: 25.4mm; /* 1 inch margins */
+  }
+
+  html, body {
+    height: auto;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+
+  /* ==========================================================================
+     Core Atomic Section Blocks (FR-3, FR-4)
+     Every top-level section is atomic and must not be split across pages
+     ========================================================================== */
+  .section-block,
+  .executive-summary,
+  .performance-scores,
+  .key-takeaways,
+  .areas-for-development,
+  .technique-analysis,
+  .training-plan,
+  .performance-insights,
+  .drill-phases,
+  .coach-comments {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 16px;
+  }
+
+  /* ==========================================================================
+     Section Titles - Keep with next content (FR-4)
+     ========================================================================== */
+  .section-title,
+  h1, h2, h3, h4, h5, h6 {
+    break-after: avoid;
+    page-break-after: avoid;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Keep headings with their first paragraph/content */
+  h1 + *, h2 + *, h3 + *, h4 + *, h5 + *, h6 + * {
+    break-before: avoid;
+    page-break-before: avoid;
+  }
+
+  .section-title + * {
+    break-before: avoid;
+    page-break-before: avoid;
+  }
+
+  /* ==========================================================================
+     Metric Grids, Tables, Lists - Keep together (FR-4)
+     ========================================================================== */
+  .metric-grid,
+  .metric-tile,
+  table,
+  ul,
+  ol {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Table rows should stay together */
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  /* List items stay together */
+  li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* ==========================================================================
+     Cards, Callouts, Summary Boxes - Keep together (FR-3)
+     ========================================================================== */
+  .card,
+  .callout,
+  .summary-box,
+  .MuiCard-root,
+  .MuiPaper-root,
+  .MuiAccordion-root {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #e0e0e0;
+  }
+
+  /* ==========================================================================
+     Coach Comments - Special handling (FR-13)
+     Allow continuation across pages but only at paragraph boundaries
+     ========================================================================== */
+  .coach-comments p {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .comment-body {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* ==========================================================================
+     Manual Page Break Controls (FR-4)
+     ========================================================================== */
+  .page-break-before {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .page-break-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* ==========================================================================
+     Typography & Readability (FR-7)
+     ========================================================================== */
+  body {
+    font-size: 10pt;
+    line-height: 1.5;
+  }
+
+  h1 { font-size: 24pt; }
+  h2 { font-size: 20pt; }
+  h3 { font-size: 16pt; }
+  h4 { font-size: 14pt; }
+  h5, h6 { font-size: 12pt; }
+
+  /* Prevent widows and orphans */
+  p {
+    orphans: 3;
+    widows: 3;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* ==========================================================================
+     Hide interactive elements in print (FR-6)
+     ========================================================================== */
+  button,
+  .no-print,
+  .MuiIconButton-root:not(.MuiChip-root *),
+  .MuiButtonBase-root:not(.MuiChip-root) {
+    display: none !important;
+  }
+
+  /* ==========================================================================
+     Images & Assets (FR-8)
+     ========================================================================== */
+  img {
+    max-width: 100%;
+    height: auto;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* SVG icons should scale properly */
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* ==========================================================================
+     MUI Component Overrides
+     ========================================================================== */
+  .MuiChip-root {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .MuiDivider-root {
+    border-color: #000000;
+    opacity: 0.3;
+  }
+
+  /* Grid containers */
+  .MuiGrid-container {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .MuiGrid-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* ==========================================================================
+     Chip & Badge Elements
+     ========================================================================== */
+  .chip,
+  .badge,
+  .status-chip {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    display: inline-block;
+  }
+
+  /* ==========================================================================
+     Special Sections with Priority Handling
+     ========================================================================== */
+
+  /* Force training plan to start on new page if it's large */
+  .training-plan.large-section {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  /* Areas for development cards */
+  .areas-for-development .improvement-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 12px;
+  }
+
+  /* Performance score tiles */
+  .performance-scores .score-tile {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Technique analysis breakdown */
+  .technique-analysis .technique-tile {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* ==========================================================================
+     Report Container
+     ========================================================================== */
+  .report-container {
+    background-color: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* ==========================================================================
+     Accessibility & Quality (FR-11)
+     ========================================================================== */
+
+  /* Ensure text is selectable (not rasterized) */
+  * {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
+
+  /* High contrast for readability */
+  .text-secondary {
+    color: #666666 !important;
+  }
+
+  /* ==========================================================================
+     Prevent Flex Layout Issues in Print
+     ========================================================================== */
+  .MuiBox-root[sx*="display: 'flex'"] {
+    display: block !important;
+  }
+}

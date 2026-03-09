@@ -1,0 +1,28 @@
+# Ignore node_modules for faster uploads
+node_modules/
+
+# Ignore git directory
+.git/
+.gitignore
+
+# Ignore common development files
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+coverage/
+.vscode/
+
+# Ignore documentation
+README.md
+*.md
+
+# Ignore GitHub workflows
+.github/
+
+# Ignore build output (will be generated during Docker build)
+build/
+
+# DO NOT ignore package-lock.json - it's needed for Docker build
+# DO NOT ignore deployment/ - it contains Dockerfile and nginx.conf

@@ -1,0 +1,49 @@
+{
+  "short_name": "AIM Coach",
+  "name": "AIM Coach Portal - Football Training Management",
+  "description": "Professional football training management platform with AI-powered drill analysis",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "categories": ["sports", "productivity", "education"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your dashboard",
+      "url": "/dashboard",
+      "icons": []
+    },
+    {
+      "name": "Upload Drill",
+      "short_name": "Upload",
+      "description": "Upload a new drill",
+      "url": "/upload-drill",
+      "icons": []
+    }
+  ],
+  "prefer_related_applications": false
+}

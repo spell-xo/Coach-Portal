@@ -1,0 +1,48 @@
+$screen-xl-max: 1535px;
+$screen-lg-max: 1199px;
+$screen-md-max: 899px;
+$screen-sm-max: 599px;
+
+@mixin xl {
+  @media (max-width: #{$screen-xl-max}) {
+    @content;
+  }
+}
+
+@mixin lg {
+  @media (max-width: #{$screen-lg-max}) {
+    @content;
+  }
+}
+
+@mixin md {
+  @media (max-width: #{$screen-md-max}) {
+    @content;
+  }
+}
+
+@mixin sm {
+  @media (max-width: #{$screen-sm-max}) {
+    @content;
+  }
+}
+
+:root {
+  // AIM Brand Colors
+  --aim-green: #24ff00;
+  --aim-grey: #eef2f6;
+  --black: #000000;
+  --white: #ffffff;
+
+  // Legacy colors (keeping for backwards compatibility)
+  --gray-modern: #4b5565;
+  --gray-iron: #18181b;
+  --gray-600: #475467;
+  --gray-modern-100: #eef2f6;
+  --green: #24ff00; // Updated to AIM Green
+  --red: #f04438;
+
+  // Extended palette
+  --primary: var(--aim-green);
+  --background: var(--aim-grey);
+}

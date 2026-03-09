@@ -1,0 +1,16 @@
+export default function AimIcon() {
+  return (
+    <svg
+      width="100"
+      height="120"
+      viewBox="275 208 105 125"
+      fill="none"
+      className="aim-icon"
+      xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M295.4 228.6H315.9V252.8L295.4 275.7V228.6ZM356.1 208L336.5 229.9V208H275V310.6L295.5 331.1V306.1L316 283.2V331.1H336.5V260.3L357 237.4V331.1L377.5 310.6V208H356H356.1Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}

@@ -1,0 +1,8 @@
+// Import variables first (needed by other files)
+@import './variables.scss';
+
+// Import component styles
+@import './layout.scss';
+@import './tables.scss';
+@import './buttons.scss';
+@import './common.scss';

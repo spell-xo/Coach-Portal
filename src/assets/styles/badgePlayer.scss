@@ -1,0 +1,199 @@
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap");
+
+.badgePlayer {
+  --badge-font: "Oswald", sans-serif;
+  --bronze-text: rgba(255, 193, 112, 1);
+  --gold-text: rgba(249, 249, 154, 1);
+  --platinum-text: rgba(21, 29, 42, 1);
+  --diamond-text: rgba(48, 252, 255, 1);
+
+  --ungraded-top-text: white;
+  --ungraded-name-text: rgba(160, 160, 160, 0.65);
+  --ungraded-stats-text: rgba(160, 160, 160, 1);
+
+  --bronze-top-text: var(--bronze-text);
+  --bronze-name-text: var(--bronze-text);
+  --bronze-stats-text: var(--bronze-text);
+
+  --silver-top-text: white;
+  --silver-name-text: rgba(237, 237, 237, 1);
+  --silver-stats-text: white;
+
+  --gold-top-text: var(--gold-text);
+  --gold-name-text: var(--gold-text);
+  --gold-stats-text: var(--gold-text);
+
+  --platinum-top-text: var(--platinum-text);
+  --platinum-name-text: var(--platinum-text);
+  --platinum-stats-text: var(--platinum-text);
+
+  --diamond-top-text: var(--diamond-text);
+  --diamond-name-text: var(--diamond-text);
+  --diamond-stats-text: var(--diamond-text);
+
+  &.ungraded {
+    --top-text: var(--ungraded-top-text);
+    --name-text: var(--ungraded-name-text);
+    --stats-text: var(--ungraded-stats-text);
+  }
+
+  &.bronze {
+    --top-text: var(--bronze-top-text);
+    --name-text: var(--bronze-name-text);
+    --stats-text: var(--bronze-stats-text);
+  }
+
+  &.silver {
+    --top-text: var(--silver-top-text);
+    --name-text: var(--silver-name-text);
+    --stats-text: var(--silver-stats-text);
+  }
+
+  &.gold {
+    --top-text: var(--gold-top-text);
+    --name-text: var(--gold-name-text);
+    --stats-text: var(--gold-stats-text);
+  }
+
+  &.platinum {
+    --top-text: var(--platinum-top-text);
+    --name-text: var(--platinum-name-text);
+    --stats-text: var(--platinum-stats-text);
+    .badgePlayer__year {
+      color: white;
+    }
+  }
+
+  &.diamond {
+    --top-text: var(--diamond-top-text);
+    --name-text: var(--diamond-name-text);
+    --stats-text: var(--diamond-stats-text);
+  }
+}
+
+.badgePlayer {
+  margin: 60px 0;
+  max-width: 300px;
+  font-family: var(--badge-font);
+  position: relative;
+  &__name {
+    font-size: 26px;
+    font-weight: 500;
+    text-transform: uppercase;
+    text-align: center;
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    top: 44.9%;
+    max-width: 72%;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    color: var(--name-text);
+  }
+  &__avatar {
+    position: absolute;
+    z-index: 0;
+    width: 38%;
+    right: 17%;
+    height: 31%;
+    top: 11%;
+    display: flex;
+    .MuiAvatar-root {
+      width: 100%;
+      height: 100%;
+      img {
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+  &__country {
+    width: 23.5% !important;
+    height: auto !important;
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  &__badge {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: auto;
+  }
+  &__year {
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    height: auto;
+    top: 34.8%;
+    text-align: center;
+    width: 38%;
+    right: 6%;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--top-text);
+  }
+  &__top {
+    position: absolute;
+    z-index: 2;
+    display: grid;
+    left: 17.2%;
+    top: 5.5%;
+    grid-gap: 17px;
+    width: 69px;
+    color: var(--top-text);
+    &.high-level {
+      left: 15.5%;
+    }
+    p {
+      line-height: 1;
+      text-transform: uppercase;
+      font-weight: 500;
+      font-size: 16px;
+      text-align: center;
+      margin-top: 0;
+      &.num {
+        font-size: 30px;
+      }
+      span {
+        font-size: 10px;
+        display: block;
+        margin-top: 4px;
+      }
+    }
+  }
+  &__stats {
+    position: absolute;
+    z-index: 2;
+    display: grid;
+    grid-gap: 10px 12px;
+    grid-template-columns: repeat(2, 1fr);
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    top: 57%;
+    max-width: 59%;
+    color: var(--stats-text);
+    p {
+      line-height: 1;
+      text-transform: uppercase;
+      font-size: 24px;
+      margin-top: 0;
+      display: grid;
+      grid-template-columns: 1fr 45px;
+      align-items: center;
+      grid-gap: 6px;
+      text-align: center;
+      span {
+        font-weight: 500;
+        text-align: center;
+        flex-grow: 1;
+      }
+    }
+  }
+}

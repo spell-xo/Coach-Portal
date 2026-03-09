@@ -1,0 +1,172 @@
+name: Deploy to Cloud Run (Dev)
+
+# Trigger options:
+# 1. Manual deployment via workflow_dispatch (deploy any branch)
+# 2. Auto-deploy on push to specific branches (uncomment below)
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to deploy'
+        required: false
+        default: 'master'
+  # Uncomment to enable auto-deploy on push to specific branches
+  # push:
+  #   branches:
+  #     - dev
+  #     - master
+
+env:
+  PROJECT_ID: bp-dev-313218
+  SERVICE_NAME: aim-coach-portal-dev
+  REGION: us-central1
+  REGISTRY: us-central1-docker.pkg.dev
+  API_URL: https://aim-coach-portal-api-dev-gmgjjvjmpq-nw.a.run.app/api/v1
+
+jobs:
+  deploy:
+    name: Deploy to Cloud Run
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || github.ref }}
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGISTRY }}
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --no-cache \
+            --build-arg REACT_APP_API_URL="${{ env.API_URL }}" \
+            --build-arg REACT_APP_ENV="development" \
+            --build-arg REACT_APP_AI_API_URL="https://aim-ai-restapi-dev-gmgjjvjmpq-nw.a.run.app/api" \
+            --build-arg REACT_APP_ENABLE_ANALYTICS="false" \
+            --build-arg REACT_APP_ENABLE_GROUPS="true" \
+            --build-arg REACT_APP_ENABLE_CHALLENGES="true" \
+            --build-arg REACT_APP_BUILD_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --build-arg REACT_APP_GIT_SHA="${{ github.sha }}" \
+            --build-arg REACT_APP_ENVIRONMENT="dev2" \
+            -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+            -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}:latest \
+            -f deployment/Dockerfile \
+            .
+
+      - name: Push Docker image to Artifact Registry
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8080 \
+            --min-instances 0 \
+            --max-instances 10 \
+            --memory 512Mi \
+            --cpu 1 \
+            --timeout 300 \
+            --quiet
+
+      - name: Get Service URL
+        id: get-url
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region ${{ env.REGION }} \
+            --format 'value(status.url)')
+          echo "url=$SERVICE_URL" >> $GITHUB_OUTPUT
+          echo "### 🚀 Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Service URL:** $SERVICE_URL" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.event.inputs.branch || github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Display deployment info
+        run: |
+          echo "✅ Deployment complete!"
+          echo "🌐 Service URL: ${{ steps.get-url.outputs.url }}"
+          echo "📦 Image: ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+          echo "🔖 Branch: ${{ github.event.inputs.branch || github.ref_name }}"
+
+      - name: Cleanup old Artifact Registry images
+        if: success()
+        run: |
+          echo "🧹 Cleaning up old container images..."
+          KEEP_COUNT=5
+
+          # List all images sorted by creation time (newest first)
+          IMAGES=$(gcloud artifacts docker images list \
+            ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }} \
+            --format="get(version)" \
+            --sort-by="~CREATE_TIME" \
+            --limit=9999)
+
+          # Count total images
+          TOTAL=$(echo "$IMAGES" | wc -l)
+          echo "📦 Total images: $TOTAL"
+          echo "✅ Keeping: $KEEP_COUNT newest images"
+
+          # Skip if we have fewer images than KEEP_COUNT
+          if [ $TOTAL -le $KEEP_COUNT ]; then
+            echo "ℹ️  Only $TOTAL images exist, no cleanup needed"
+            exit 0
+          fi
+
+          # Delete old images (skip first KEEP_COUNT)
+          DELETE_COUNT=$((TOTAL - KEEP_COUNT))
+          echo "🗑️  Deleting: $DELETE_COUNT old images"
+
+          IMAGE_PATH="${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}"
+
+          # Get all tags with their digests
+          echo "🔍 Fetching all tags..."
+          ALL_TAGS=$(gcloud artifacts docker tags list "${IMAGE_PATH}" \
+            --format="csv[no-heading](tag,version)" 2>/dev/null || true)
+
+          echo "$IMAGES" | tail -n +$((KEEP_COUNT + 1)) | while read VERSION; do
+            if [ -n "$VERSION" ]; then
+              echo "Processing: $VERSION"
+
+              # Find tags for this specific digest
+              MATCHING_TAGS=$(echo "$ALL_TAGS" | grep "$VERSION" | cut -d',' -f1 || true)
+
+              # Delete each tag if any exist
+              if [ -n "$MATCHING_TAGS" ]; then
+                echo "  Found tags, untagging..."
+                echo "$MATCHING_TAGS" | while read TAG; do
+                  if [ -n "$TAG" ]; then
+                    echo "  Deleting tag: $TAG"
+                    gcloud artifacts docker tags delete "${IMAGE_PATH}:${TAG}" \
+                      --quiet 2>/dev/null || echo "  ⚠️  Failed to delete tag $TAG"
+                  fi
+                done
+              fi
+
+              # Now delete the untagged image
+              echo "  Deleting image digest: $VERSION"
+              gcloud artifacts docker images delete "${IMAGE_PATH}@${VERSION}" \
+                --quiet 2>/dev/null || echo "  ⚠️  Failed to delete $VERSION"
+            fi
+          done
+
+          echo "✨ Cleanup complete!"

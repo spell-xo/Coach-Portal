@@ -1,0 +1,136 @@
+$green: var(--green);
+$linkColor: #1976d2;
+
+.page-block {
+  border: 1px solid #d0d5dd;
+  background: white;
+  border-radius: 8px;
+  padding-top: 18px;
+  padding-bottom: 18px;
+  overflow: hidden;
+  &.pb-0 {
+    padding-bottom: 0;
+  }
+  &-pd {
+    padding-left: 18px;
+    padding-right: 18px;
+    @include md {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+  }
+  &-value {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 140%;
+    margin-bottom: 18px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    @include sm {
+      font-size: 18px;
+    }
+  }
+  &-percent {
+    color: $green;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+  }
+  &-link {
+    font-size: 14px;
+    color: $linkColor;
+  }
+}
+
+.copy-icon {
+  display: flex;
+  margin-left: 5px;
+  width: max-content;
+  cursor: pointer;
+  color: #70707b;
+  &:hover {
+    color: $linkColor;
+  }
+  svg {
+    width: 17px;
+    height: auto;
+  }
+}
+
+.copy-text {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 3px;
+  &:hover {
+    text-decoration: underline;
+  }
+  svg {
+    width: 15px;
+    height: auto;
+  }
+}
+
+.overview-block {
+  display: grid;
+  // padding-top: 24px;
+  border-bottom: 1px solid #eaecf0;
+  // padding-bottom: 16px;
+  .main-content-px {
+    padding-top: 24px;
+    padding-bottom: 16px;
+  }
+  .border-right {
+    border-right: 1px solid #eaecf0;
+  }
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #eaecf0;
+    min-height: 36px;
+  }
+
+  // .title-sm {
+  //   margin-bottom: 16px;
+  // }
+  // &__block {
+  //   .title-sm {
+  //     border-bottom: 1px solid #eaecf0;
+  //     padding-bottom: 8px;
+  //   }
+  //   padding-bottom: 16px;
+
+  // }
+}
+
+.details-block {
+  display: grid;
+  grid-gap: 8px;
+  &__item {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 10px;
+    align-items: center;
+    p {
+      color: #475467;
+      span {
+        color: black;
+        font-weight: 500;
+      }
+      &:last-child {
+        text-align: right;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+      }
+      a {
+        color: $linkColor;
+      }
+    }
+  }
+}

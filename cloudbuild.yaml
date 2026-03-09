@@ -1,0 +1,56 @@
+steps:
+  # Step 1: Set up SSH for private GitHub repos
+  - name: 'gcr.io/cloud-builders/git'
+    secretEnv: ['SSH_KEY']
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        mkdir -p /root/.ssh
+        echo "$$SSH_KEY" > /root/.ssh/id_ed25519
+        chmod 600 /root/.ssh/id_ed25519
+        ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+
+  # Step 2: Copy SSH files to build context
+  - name: 'gcr.io/cloud-builders/git'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cp /root/.ssh/id_ed25519 ./ssh_key
+        cp /root/.ssh/known_hosts ./ssh_known_hosts
+        chmod 600 ./ssh_key
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+
+  # Step 3: Build Docker image with build-time env vars
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'REACT_APP_API_URL=https://coach-portal-ui.aim-football.com/restapi'
+      - '--build-arg'
+      - 'REACT_APP_ENV=production'
+      - '-t'
+      - 'europe-west2-docker.pkg.dev/bp-prod-313218/aim-football-prod/aim-coach-portal-ui:latest'
+      - '.'
+
+  # Step 4: Push to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'europe-west2-docker.pkg.dev/bp-prod-313218/aim-football-prod/aim-coach-portal-ui:latest'
+
+images:
+  - 'europe-west2-docker.pkg.dev/bp-prod-313218/aim-football-prod/aim-coach-portal-ui:latest'
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/751091042333/secrets/github-ssh-key/versions/latest
+      env: 'SSH_KEY'
+
+timeout: 1200s
