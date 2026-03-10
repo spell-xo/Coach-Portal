@@ -2,6 +2,7 @@
   "name": "aim-coach-portal-ui",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://thatguywithesp3-sketch.github.io/AIM-Coach-Portal",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
     "@craco/craco": "^7.1.0",
@@ -57,7 +58,9 @@
     "docker:build": "docker build -f deployment/Dockerfile -t aim-coach-portal-ui .",
     "docker:run": "docker run -p 8080:8080 aim-coach-portal-ui",
     "deploy:dev": "gh workflow run deploy-dev.yml",
-    "deploy:prod": "gh workflow run deploy-prod.yml"
+    "deploy:prod": "gh workflow run deploy-prod.yml",
+    "deploy:gh-pages": "REACT_APP_API_URL=https://aim-coach-portal-api-dev-gmgjjvjmpq-nw.a.run.app/api/v1 npm run build && cp build/index.html build/404.html && gh-pages -d build",
+    "deploy": "npm run deploy:gh-pages"
   },
   "eslintConfig": {
     "extends": [
@@ -79,6 +82,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.17.13",
+    "gh-pages": "^6.2.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.1",
     "playwright": "^1.55.1",

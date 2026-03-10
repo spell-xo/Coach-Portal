@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
@@ -76,7 +75,7 @@ function App() {
         {/* Public routes */}
         <Route
           path="/login"
-          element={<Login />}
+          element={<Navigate to="/dashboard" replace />}
         />
         <Route
           path="/register"
@@ -582,12 +581,12 @@ function App() {
           }
         />
 
-        {/* Catch-all route: redirect any undefined routes to login */}
+        {/* Catch-all route: redirect any undefined routes to dashboard */}
         <Route
           path="*"
           element={
             <Navigate
-              to="/login"
+              to="/dashboard"
               replace
             />
           }
