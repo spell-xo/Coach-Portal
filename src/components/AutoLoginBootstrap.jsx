@@ -9,6 +9,37 @@ import contextService from '../api/contextService';
 const DEMO_EMAIL = 'headcoach@sk.com';
 const DEMO_PASSWORD = 'Aim@2025';
 
+const DEFAULT_CLUB_ID = process.env.REACT_APP_DEFAULT_CLUB_ID;
+
+/**
+ * When login fails, show Club Dashboard UI with mock context (no API data).
+ * Set REACT_APP_DEFAULT_CLUB_ID in Vercel to your club ID for data to load.
+ */
+const applyFallbackClubContext = (dispatch, navigate) => {
+  if (!DEFAULT_CLUB_ID) return false;
+  const mockContext = {
+    type: 'club',
+    clubId: DEFAULT_CLUB_ID,
+    clubName: 'SK Academy',
+    role: 'clubManager',
+    originalRole: 'clubManager',
+  };
+  dispatch(setCredentials({
+    user: {
+      activeContext: mockContext,
+      primaryRole: 'clubManager',
+      role: 'clubManager',
+      roles: [{ role: 'clubManager' }],
+    },
+    accessToken: null,
+    refreshToken: null,
+    activeContext: mockContext,
+    availableContexts: [{ type: 'club', clubId: DEFAULT_CLUB_ID, clubName: 'SK Academy', role: 'clubManager' }],
+  }));
+  navigate(`/clubs/${DEFAULT_CLUB_ID}/dashboard`, { replace: true });
+  return true;
+};
+
 /**
  * Auto-login with demo credentials on first load so Vercel/deployed app
  * shows Club Dashboard (same as localhost when logged in).
@@ -34,11 +65,18 @@ const AutoLoginBootstrap = ({ children }) => {
           password: DEMO_PASSWORD,
         });
 
-        if (cancelled || !response?.success) return;
+        const ok = response?.success === true || response?.data?.success === true;
+        if (cancelled || !ok) {
+          if (DEFAULT_CLUB_ID && applyFallbackClubContext(dispatch, navigate)) {
+            setBootstrapped(true);
+          }
+          return;
+        }
 
+        const data = response.data || response;
         dispatch(setCredentials({
-          ...response.data,
-          activeContext: response.data?.user?.activeContext,
+          ...data,
+          activeContext: data?.user?.activeContext,
         }));
 
         try {
@@ -50,7 +88,7 @@ const AutoLoginBootstrap = ({ children }) => {
           console.warn('[AutoLogin] Could not fetch contexts:', e?.message);
         }
 
-        const activeContext = response.data?.user?.activeContext;
+        const activeContext = data?.user?.activeContext;
         const redirectParam = new URLSearchParams(location.search).get('redirect');
 
         let redirectTo;
@@ -66,8 +104,12 @@ const AutoLoginBootstrap = ({ children }) => {
           navigate(redirectTo, { replace: true });
         }
       } catch (err) {
-        console.warn('[AutoLogin] Login failed, showing dashboard without auth:', err?.message);
-        navigate('/dashboard', { replace: true });
+        console.warn('[AutoLogin] Login failed:', err?.message);
+        if (applyFallbackClubContext(dispatch, navigate)) {
+          // Fallback applied
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
       } finally {
         if (!cancelled) setBootstrapped(true);
       }

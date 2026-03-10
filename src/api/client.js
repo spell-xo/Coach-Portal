@@ -85,7 +85,10 @@ apiClient.interceptors.response.use(
           return Promise.reject(refreshError);
         }
       } else {
-        // No refresh token - log out
+        // No refresh token - for fallback/demo mode (no real auth), just reject without redirect
+        if (originalRequest.url?.includes('/clubs/') && !state.auth.refreshToken) {
+          return Promise.reject(error);
+        }
         store.dispatch(logout());
         window.location.href = '/login';
       }
