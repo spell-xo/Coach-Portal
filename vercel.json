@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/v1/:path*",
+      "destination": "https://aim-coach-portal-api-dev-gmgjjvjmpq-nw.a.run.app/api/v1/:path*"
+    }
+  ]
+}
