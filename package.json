@@ -2,7 +2,6 @@
   "name": "aim-coach-portal-ui",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://thatguywithesp3-sketch.github.io/AIM-Coach-Portal",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
     "@craco/craco": "^7.1.0",

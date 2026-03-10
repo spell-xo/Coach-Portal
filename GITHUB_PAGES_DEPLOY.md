@@ -21,10 +21,20 @@ https://thatguywithesp3-sketch.github.io
 
 ## Деплой
 
+Для GitHub Pages потрібен `homepage` у package.json. Перед деплоєм тимчасово додай:
+
+```json
+"homepage": "https://thatguywithesp3-sketch.github.io/AIM-Coach-Portal"
+```
+
+Потім:
+
 ```bash
 npm install
 npm run deploy:gh-pages
 ```
+
+(Vercel використовує корінь `/`, тому homepage не потрібен і заборонений у package.json.)
 
 Після успішного деплою сайт буде доступний за адресою:
 
