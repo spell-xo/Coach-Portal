@@ -25,6 +25,9 @@ yarn-error.log*
 # environment variables
 .env
 
+# dev proxy config (local-only)
+src/setupProxy.js
+
 # IDE
 .vscode/
 .idea/

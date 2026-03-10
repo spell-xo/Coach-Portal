@@ -1,41 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
   Box,
   Container,
   Grid,
-  Card,
-  CardContent,
   Typography,
   Button,
-  CircularProgress,
   Alert,
-  Paper,
-  List,
-  ListItem,
-  ListItemText,
+  Avatar,
   Chip,
-  Tabs,
-  Tab,
+  IconButton,
+  useMediaQuery,
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 import { motion } from 'framer-motion';
 import GroupIcon from '@mui/icons-material/Group';
 import PersonIcon from '@mui/icons-material/Person';
 import SportsIcon from '@mui/icons-material/Sports';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import AddIcon from '@mui/icons-material/Add';
-import AssessmentIcon from '@mui/icons-material/Assessment';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import SyncIcon from '@mui/icons-material/Sync';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
-import WebIcon from '@mui/icons-material/Web';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import HomeIcon from '@mui/icons-material/Home';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import StarIcon from '@mui/icons-material/Star';
 import AppLayout from '../../components/AppLayout';
-import AnimatedStatCard from '../../components/AnimatedStatCard';
-import Breadcrumbs from '../../components/Breadcrumbs';
 import { SkeletonStatCard } from '../../components/skeletons';
 import RequireRole from '../../components/RequireRole';
 import StaffInvitationsCard from '../../components/StaffInvitationsCard';
@@ -43,14 +36,347 @@ import ClubAIReport from '../../components/ClubAIReport';
 import { selectActiveContext } from '../../store/authSlice';
 import clubService from '../../api/clubService';
 
+// ─── Hero default background (black + green radial gradient) ───
+const HERO_DEFAULT_BG = `
+  radial-gradient(ellipse at 20% 80%, rgba(36,255,0,0.25) 0%, transparent 60%),
+  linear-gradient(90deg, #000 0%, #000 100%)
+`;
+
+// ─── Stat card configuration (icon, label, dataKey) ───
+const STAT_ROW_1 = [
+  { label: 'Total Teams', key: 'teamCount', icon: <GroupIcon fontSize="small" /> },
+  { label: 'Coaches', key: 'coachCount', icon: <SportsIcon fontSize="small" /> },
+  { label: 'Players', key: 'playerCount', icon: <PersonIcon fontSize="small" /> },
+  { label: 'Active Teams', key: 'activeTeams', icon: <TrendingUpIcon fontSize="small" /> },
+];
+
+const STAT_ROW_2 = [
+  { label: 'Total Drills', key: 'totalUploaded', icon: <VideoLibraryIcon fontSize="small" />, isDrill: true },
+  { label: 'Awaiting Annotation', key: 'awaitingAnnotation', icon: <PendingActionsIcon fontSize="small" />, isDrill: true },
+  { label: 'Ready for Processing', key: 'readyForProcessing', icon: <SyncIcon fontSize="small" />, isDrill: true },
+  { label: 'Drills Analysed', key: 'analysed', icon: <CheckCircleIcon fontSize="small" />, isDrill: true },
+];
+
+const PERIOD_OPTIONS = ['Weekly', 'Monthly', 'Yearly'];
+
+// ─── Sub-components ───
+
+const StatCard = ({ label, value, icon, delay = 0 }) => (
+  <Box
+    component={motion.div}
+    initial={{ opacity: 0, y: 16 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay, duration: 0.35 }}
+    sx={{
+      flex: '1 1 0',
+      minWidth: 0,
+      bgcolor: '#fff',
+      border: '1px solid #ebebeb',
+      borderRadius: '15px',
+      p: '20px',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      height: 120,
+      overflow: 'hidden',
+    }}
+  >
+    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <Typography sx={{ fontSize: 42, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.13px', color: '#000' }}>
+        {value}
+      </Typography>
+      <Box sx={{ bgcolor: '#f3f4f6', borderRadius: '5px', p: '4px', display: 'flex', alignItems: 'center' }}>
+        {icon}
+      </Box>
+    </Box>
+    <Typography sx={{ fontSize: 16, fontWeight: 500, color: '#545963', letterSpacing: '-0.07px', lineHeight: '22px' }}>
+      {label}
+    </Typography>
+  </Box>
+);
+
+const QuickStatHighlight = ({ title, children, delay = 0 }) => (
+  <Box
+    component={motion.div}
+    initial={{ opacity: 0, y: 12 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay, duration: 0.4 }}
+    sx={{
+      flex: '1 1 0',
+      minWidth: 0,
+      backdropFilter: 'blur(10px)',
+      bgcolor: 'rgba(243,244,246,0.25)',
+      border: '1px solid #777',
+      borderRadius: '7.5px',
+      p: '12px',
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '10px',
+    }}
+  >
+    <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#d0d5dd', letterSpacing: '-0.06px', lineHeight: '22px' }}>
+      {title}
+    </Typography>
+    {children}
+  </Box>
+);
+
+const HighlightPlayerCard = ({ name, level, description }) => (
+  <>
+    <Box sx={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+      <Avatar sx={{ width: 54, height: 54, bgcolor: '#333' }}>{name?.charAt(0)}</Avatar>
+      <Box>
+        <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px' }}>
+          {name || '—'}
+        </Typography>
+        <Typography sx={{ fontSize: 12, fontWeight: 500, color: '#d0d5dd' }}>
+          {level || '—'}
+        </Typography>
+      </Box>
+    </Box>
+    {description && (
+      <Box sx={{ bgcolor: 'rgba(255,255,255,0.2)', borderRadius: '73px', p: '5px' }}>
+        <Typography sx={{ fontSize: 12, color: '#f2f4f7', lineHeight: '15px' }}>
+          <Box component="span" sx={{ fontWeight: 700, color: '#24FF00' }}>{description.highlight}</Box>
+          {' '}{description.rest}
+        </Typography>
+      </Box>
+    )}
+  </>
+);
+
+const TeamCard = ({ team, clubId, navigate, index }) => (
+  <Box
+    component={motion.div}
+    initial={{ opacity: 0, x: 20 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ delay: 0.1 * index, duration: 0.4 }}
+    onClick={() => navigate(`/clubs/${clubId}/teams/${team.id}`)}
+    sx={{
+      minWidth: 300,
+      width: 300,
+      height: 240,
+      borderRadius: '7.5px',
+      border: '1px solid #ebebeb',
+      overflow: 'hidden',
+      position: 'relative',
+      cursor: 'pointer',
+      flexShrink: 0,
+      bgcolor: '#1a1a1a',
+      display: 'flex',
+      flexDirection: 'column',
+      '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(0,0,0,0.2)' },
+      transition: 'transform 0.2s, box-shadow 0.2s',
+    }}
+  >
+    {team.backgroundImage && (
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `url(${team.backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          borderRadius: 'inherit',
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            background: 'radial-gradient(ellipse at 70% 10%, transparent 0%, rgba(0,0,0,0.85) 70%)',
+            borderRadius: 'inherit',
+          },
+        }}
+      />
+    )}
+
+    <Box sx={{ position: 'relative', zIndex: 1, p: '15px', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <Avatar sx={{ width: 45, height: 45, bgcolor: '#333', border: '0.45px solid #ededed', boxShadow: 'inset 0 0 7px rgba(0,0,0,0.5)' }}>
+            {team.name?.charAt(0)}
+          </Avatar>
+          <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+            <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px' }}>
+              {team.name}
+            </Typography>
+            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: team.status === 'Active' ? '#24FF00' : '#f44336' }} />
+          </Box>
+          <Box sx={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+            <Chip
+              icon={<GroupIcon sx={{ fontSize: 14, color: '#fff !important' }} />}
+              label={`${team.playerCount || 0} Players`}
+              size="small"
+              sx={{
+                bgcolor: 'rgba(243,244,246,0.15)',
+                backdropFilter: 'blur(3px)',
+                color: '#fff',
+                fontSize: 12,
+                height: 26,
+                borderRadius: '73px',
+                '& .MuiChip-icon': { ml: '4px' },
+              }}
+            />
+            <Chip
+              icon={<SportsIcon sx={{ fontSize: 14, color: '#fff !important' }} />}
+              label={`${team.coachCount || 1} Coaches`}
+              size="small"
+              sx={{
+                bgcolor: 'rgba(243,244,246,0.15)',
+                backdropFilter: 'blur(3px)',
+                color: '#fff',
+                fontSize: 12,
+                height: 26,
+                borderRadius: '73px',
+                '& .MuiChip-icon': { ml: '4px' },
+              }}
+            />
+          </Box>
+        </Box>
+        {team.status && (
+          <Chip
+            label={team.status}
+            size="small"
+            sx={{
+              bgcolor: team.status === 'Active' ? '#24FF00' : '#666',
+              color: '#000',
+              fontWeight: 700,
+              fontSize: 12,
+              height: 24,
+              borderRadius: '5px',
+            }}
+          />
+        )}
+      </Box>
+    </Box>
+
+    {/* Performer of the Week sub-card */}
+    <Box
+      sx={{
+        position: 'relative',
+        zIndex: 1,
+        mx: '15px',
+        mb: '15px',
+        backdropFilter: 'blur(5px)',
+        bgcolor: 'rgba(243,244,246,0.15)',
+        borderRadius: '10px',
+        overflow: 'hidden',
+        display: 'flex',
+        height: 82,
+      }}
+    >
+      <Box sx={{ p: '7px', display: 'flex', flexDirection: 'column', gap: '5px', flex: 1 }}>
+        <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#fff', lineHeight: '22px' }}>
+          Performer Of the Week
+        </Typography>
+        <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+          <Typography sx={{ fontFamily: '"Anton", sans-serif', fontSize: 20, fontWeight: 400, color: '#fff', lineHeight: '28px', letterSpacing: '-0.6px' }}>
+            {team.topPerformer?.xp ? `+${team.topPerformer.xp}` : '—'}
+          </Typography>
+          <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#24FF00' }}>XP</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+          <Typography sx={{ fontSize: 12, lineHeight: '15px' }}>
+            <Box component="span" sx={{ fontWeight: 700, color: '#24FF00' }}>{team.topPerformer?.drills || 0}</Box>
+            <Box component="span" sx={{ color: '#d0d5dd' }}> Drills</Box>
+          </Typography>
+          <Box sx={{ width: 0, height: 15, borderLeft: '1px solid rgba(255,255,255,0.3)' }} />
+          <Typography sx={{ fontSize: 12, lineHeight: '15px' }}>
+            <Box component="span" sx={{ fontWeight: 700, color: '#24FF00' }}>{team.topPerformer?.missions || 0}</Box>
+            <Box component="span" sx={{ color: '#d0d5dd' }}> Missions</Box>
+          </Typography>
+        </Box>
+      </Box>
+      <Box
+        sx={{
+          width: 129,
+          position: 'relative',
+          bgcolor: '#222',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          p: '7px',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          ...(team.topPerformer?.photo && {
+            backgroundImage: `linear-gradient(to bottom, transparent, rgba(0,0,0,0.75)), url(${team.topPerformer.photo})`,
+          }),
+        }}
+      >
+        <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>
+          {team.topPerformer?.name || '—'}
+        </Typography>
+        <Typography sx={{ fontSize: 12, color: '#d0d5dd' }}>
+          {team.topPerformer?.level || '—'}
+        </Typography>
+      </Box>
+    </Box>
+  </Box>
+);
+
+const ActivityItem = ({ activity, index }) => {
+  const iconMap = {
+    drill_completed: <CheckCircleIcon sx={{ fontSize: 20, color: '#fff' }} />,
+    level_unlocked: <EmojiEventsIcon sx={{ fontSize: 20, color: '#fff' }} />,
+    personal_best: <StarIcon sx={{ fontSize: 20, color: '#fff' }} />,
+  };
+  const bgMap = {
+    drill_completed: '#24FF00',
+    level_unlocked: '#F59E0B',
+    personal_best: '#EF4444',
+  };
+  const type = activity.type || 'drill_completed';
+
+  return (
+    <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.05 * index, duration: 0.3 }}
+      sx={{ display: 'flex', gap: '12px', alignItems: 'flex-start', py: '12px' }}
+    >
+      <Box
+        sx={{
+          width: 36,
+          height: 36,
+          borderRadius: '50%',
+          bgcolor: bgMap[type] || '#24FF00',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}
+      >
+        {iconMap[type] || iconMap.drill_completed}
+      </Box>
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography
+          sx={{ fontSize: 14, color: '#1a1a1a', lineHeight: 1.5 }}
+          dangerouslySetInnerHTML={{ __html: activity.message }}
+        />
+        <Typography sx={{ fontSize: 13, color: '#9aa5b1', mt: '2px' }}>
+          {activity.time}
+        </Typography>
+      </Box>
+    </Box>
+  );
+};
+
+// ═══════════════════════════════════════════════════════
+// MAIN COMPONENT
+// ═══════════════════════════════════════════════════════
+
 const ClubDashboard = () => {
   const { clubId } = useParams();
   const navigate = useNavigate();
   const activeContext = useSelector(selectActiveContext);
+  const isMobile = useMediaQuery("(max-width:767px)");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dashboardData, setDashboardData] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
+  const [selectedPeriod, setSelectedPeriod] = useState('Weekly');
+  const [clubBranding, setClubBranding] = useState(null);
 
   useEffect(() => {
     loadDashboardData();
@@ -61,14 +387,12 @@ const ClubDashboard = () => {
       setLoading(true);
       const response = await clubService.getDashboard(clubId);
 
-      // Transform API response to match component expectations
       const transformedData = {
         stats: {
           teamCount: response.data.stats?.teamCount || 0,
           coachCount: response.data.stats?.coachCount || 0,
           playerCount: response.data.stats?.playerCount || 0,
           activeTeams: response.data.stats?.activeTeams || 0,
-          // Include drill statistics from API response
           drills: response.data.stats?.drills || {
             totalUploaded: 0,
             awaitingAnnotation: 0,
@@ -76,22 +400,35 @@ const ClubDashboard = () => {
             analysed: 0,
             uniqueUsers: 0,
             uploadedViaApp: 0,
-            uploadedViaPortal: 0
-          }
+            uploadedViaPortal: 0,
+          },
         },
-        recentActivity: [
-          // TODO: Implement activity feed in backend
-          { id: 1, message: `Club has ${response.data.stats?.teamCount || 0} active teams`, time: 'Now' }
+        recentActivity: response.data.recentActivity || [
+          { id: 1, message: `Club has ${response.data.stats?.teamCount || 0} active teams`, time: 'Now' },
         ],
-        teams: response.data.teams?.slice(0, 3).map(team => ({
-          id: team._id,
-          name: team.name,
-          playerCount: team.playerCount || 0,
-          status: team.status || 'Active'
-        })) || []
+        teams:
+          response.data.teams?.slice(0, 5).map((team) => ({
+            id: team._id,
+            name: team.name,
+            playerCount: team.playerCount || 0,
+            coachCount: team.coachCount || 1,
+            status: team.status || 'Active',
+            backgroundImage: team.backgroundImage || null,
+            topPerformer: team.topPerformer || null,
+          })) || [],
+        highlights: response.data.highlights || null,
       };
 
       setDashboardData(transformedData);
+
+      // Fetch club branding (badge + hero image)
+      try {
+        const clubRes = await clubService.getClubById(clubId);
+        setClubBranding(clubRes.data?.settings?.branding || null);
+      } catch {
+        setClubBranding(null);
+      }
+
       setError(null);
     } catch (err) {
       console.error('Error loading dashboard:', err);
@@ -101,18 +438,26 @@ const ClubDashboard = () => {
     }
   };
 
+  const getStatValue = useCallback(
+    (key, isDrill = false) => {
+      if (!dashboardData) return 0;
+      return isDrill ? dashboardData.stats.drills?.[key] || 0 : dashboardData.stats[key] || 0;
+    },
+    [dashboardData]
+  );
+
+  // ─── Loading ───
   if (loading) {
     return (
       <AppLayout>
         <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: { xs: 2, sm: 3, md: 4 } }}>
-          <Breadcrumbs />
           <Box sx={{ mb: 4 }}>
             <Typography variant="h4" gutterBottom>
               {activeContext?.clubName || 'Club Dashboard'}
             </Typography>
           </Box>
-          <Grid container spacing={3}>
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
+          <Grid container spacing={2}>
+            {[...Array(8)].map((_, i) => (
               <Grid item xs={12} sm={6} md={3} key={i}>
                 <SkeletonStatCard />
               </Grid>
@@ -123,6 +468,7 @@ const ClubDashboard = () => {
     );
   }
 
+  // ─── Error ───
   if (error) {
     return (
       <AppLayout>
@@ -133,338 +479,428 @@ const ClubDashboard = () => {
     );
   }
 
+  const heroBackgroundImage = clubBranding?.heroImageUrl || null;
+  const clubBadgeUrl = clubBranding?.badgeUrl || null;
+  const clubName = activeContext?.clubName || 'Club Dashboard';
+  const activeUsers = dashboardData?.stats.drills?.uniqueUsers || 0;
+  const highlights = dashboardData?.highlights;
+
   return (
     <AppLayout>
-      <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: { xs: 2, sm: 3, md: 4 } }}>
-        <Breadcrumbs />
-
-        {/* Header */}
+      <Box sx={{ pb: 10 }}>
+        {/* ═══════════════════════════════════════════
+            HERO SECTION
+        ═══════════════════════════════════════════ */}
         <Box
           component={motion.div}
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}
+          sx={{
+            position: 'relative',
+            background: heroBackgroundImage ? 'none' : HERO_DEFAULT_BG,
+            borderRadius: isMobile ? 0 : '15px',
+            p: isMobile ? '16px' : '20px',
+            mx: isMobile ? 0 : { xs: 1, sm: 2, md: 2 },
+            mt: isMobile ? 0 : { xs: 1, sm: 2 },
+            overflow: 'hidden',
+            color: '#fff',
+          }}
         >
-          <Box>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 700 }}>
-              {activeContext?.clubName || 'Club Dashboard'}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Welcome to your club management dashboard
-            </Typography>
-          </Box>
-
-          {/* Quick Actions */}
-          <RequireRole roles={['club_manager', 'head_coach']}>
+          {heroBackgroundImage && (
             <Box
-              component={motion.div}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-              sx={{ display: 'flex', gap: 1 }}
-            >
-              <Button
-                component={motion.button}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                variant="outlined"
-                startIcon={<AddIcon />}
-                onClick={() => navigate(`/clubs/${clubId}/invitations`)}
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: `url(${heroBackgroundImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 100%)',
+                },
+              }}
+            />
+          )}
+
+          <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: isMobile ? '12px' : '20px' }}>
+            {/* Breadcrumbs + Edit button */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate('/dashboard')}>
+                  <HomeIcon sx={{ fontSize: 15, color: '#a1a1a1' }} />
+                  <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#a1a1a1' }}>Home</Typography>
+                </Box>
+                <ChevronRightIcon sx={{ fontSize: 20, color: '#a1a1a1' }} />
+                <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#a1a1a1' }}>Clubs</Typography>
+                <ChevronRightIcon sx={{ fontSize: 20, color: '#a1a1a1' }} />
+                <Typography sx={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>Dashboard</Typography>
+              </Box>
+              <IconButton
+                onClick={() => navigate(`/clubs/${clubId}/branding`)}
+                sx={{
+                  bgcolor: '#24FF00',
+                  width: 32,
+                  height: 32,
+                  '&:hover': { bgcolor: '#1ecc00' },
+                }}
               >
-                Invite Player
-              </Button>
-              <RequireRole roles={['head_coach']}>
-                <Button
-                  component={motion.button}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={() => navigate(`/clubs/${clubId}/teams/create`)}
-                >
-                  Create Team
-                </Button>
-              </RequireRole>
+                <EditIcon sx={{ fontSize: 16, color: '#000' }} />
+              </IconButton>
             </Box>
-          </RequireRole>
-        </Box>
 
-        {/* Tabs Navigation - AI Report tab temporarily disabled */}
-        {/* <Paper sx={{ mb: 4 }}>
-          <Tabs
-            value={activeTab}
-            onChange={(e, newValue) => setActiveTab(newValue)}
-            indicatorColor="primary"
-            textColor="primary"
-            variant="fullWidth"
-          >
-            <Tab label="Overview" icon={<AssessmentIcon />} iconPosition="start" />
-            <Tab label="AI Report" icon={<TrendingUpIcon />} iconPosition="start" />
-          </Tabs>
-        </Paper> */}
-
-        {/* Tab Panel: Overview */}
-        {activeTab === 0 && (
-          <>
-            {/* Consolidated Statistics Cards */}
-            <Grid container spacing={3} sx={{ mb: 4 }}>
-              {/* Club Overview Card */}
-              <Grid item xs={12} md={4}>
-                <Paper
-                  component={motion.div}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0 }}
-                  sx={{ p: 3, height: '100%' }}
+            {/* Title row + CTAs */}
+            <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'stretch' : 'flex-end', flexWrap: 'wrap', gap: 2 }}>
+              {/* Left: Logo + Name */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <Avatar
+                  src={clubBadgeUrl}
+                  sx={{
+                    width: isMobile ? 60 : 80,
+                    height: isMobile ? 60 : 80,
+                    bgcolor: '#f3f4f6',
+                    border: '2px solid #ebebeb',
+                    boxShadow: '0 0 22px rgba(0,0,0,0.1)',
+                    fontSize: 32,
+                    color: '#000',
+                  }}
                 >
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: 'primary.main' }}>
-                    Club Overview
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <Box sx={{ textAlign: 'center', p: 1 }}>
-                        <GroupIcon sx={{ fontSize: 32, color: 'primary.main', mb: 1 }} />
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                          {dashboardData?.stats.teamCount || 0}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Total Teams
-                        </Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Box sx={{ textAlign: 'center', p: 1 }}>
-                        <SportsIcon sx={{ fontSize: 32, color: 'success.main', mb: 1 }} />
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                          {dashboardData?.stats.coachCount || 0}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Coaches
-                        </Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Box sx={{ textAlign: 'center', p: 1 }}>
-                        <PersonIcon sx={{ fontSize: 32, color: 'info.main', mb: 1 }} />
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                          {dashboardData?.stats.playerCount || 0}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Players
-                        </Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Box sx={{ textAlign: 'center', p: 1 }}>
-                        <TrendingUpIcon sx={{ fontSize: 32, color: 'warning.main', mb: 1 }} />
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                          {dashboardData?.stats.activeTeams || 0}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Active Teams
-                        </Typography>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </Paper>
-              </Grid>
-
-              {/* Drill Statistics Card */}
-              <Grid item xs={12} md={4}>
-                <Paper
-                  component={motion.div}
-                  initial={{ opacity: 0, y: 20 }}
+                  {!clubBadgeUrl && clubName.charAt(0)}
+                </Avatar>
+                <Typography
+                  component={motion.h1}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  sx={{ p: 3, height: '100%' }}
+                  transition={{ delay: 0.15, duration: 0.4 }}
+                  sx={{ fontSize: { xs: 28, md: 42 }, fontWeight: 700, color: '#fff', letterSpacing: '-0.13px', lineHeight: 1.1 }}
                 >
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: 'primary.main' }}>
-                    Drill Statistics
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <Box sx={{ textAlign: 'center', p: 1 }}>
-                        <VideoLibraryIcon sx={{ fontSize: 32, color: 'primary.main', mb: 1 }} />
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                          {dashboardData?.stats.drills?.totalUploaded || 0}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Total Drills
-                        </Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Box sx={{ textAlign: 'center', p: 1 }}>
-                        <PendingActionsIcon sx={{ fontSize: 32, color: 'warning.main', mb: 1 }} />
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                          {dashboardData?.stats.drills?.awaitingAnnotation || 0}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Awaiting Annotation
-                        </Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Box sx={{ textAlign: 'center', p: 1 }}>
-                        <PlayCircleOutlineIcon sx={{ fontSize: 32, color: 'info.main', mb: 1 }} />
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                          {dashboardData?.stats.drills?.readyForProcessing || 0}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Ready for Processing
-                        </Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Box sx={{ textAlign: 'center', p: 1 }}>
-                        <CheckCircleIcon sx={{ fontSize: 32, color: 'success.main', mb: 1 }} />
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                          {dashboardData?.stats.drills?.analysed || 0}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Drills Analysed
-                        </Typography>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </Paper>
-              </Grid>
+                  {clubName}
+                </Typography>
+                <Typography sx={{ fontSize: 16, fontWeight: 500, color: '#d0d5dd' }}>
+                  Welcome to your club management dashboard
+                </Typography>
+              </Box>
 
-              {/* User Activity Card */}
-              <Grid item xs={12} md={4}>
-                <Paper
-                  component={motion.div}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
-                >
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: 'primary.main' }}>
-                    User Activity
-                  </Typography>
-                  <Box sx={{ textAlign: 'center', p: 1 }}>
-                    <PeopleAltIcon sx={{ fontSize: 32, color: 'primary.main', mb: 1 }} />
-                    <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                      {dashboardData?.stats.drills?.uniqueUsers || 0}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Active Users
+              {/* Right: Active Users + CTAs */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: isMobile ? 'stretch' : 'flex-end', gap: '12px' }}>
+                <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center', p: '5px' }}>
+                  <PersonIcon sx={{ fontSize: 20, color: '#d0d5dd' }} />
+                  <Typography sx={{ fontSize: 16, fontWeight: 500, color: '#d0d5dd' }}>Active Users:</Typography>
+                  <Typography sx={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>({activeUsers})</Typography>
+                </Box>
+                <RequireRole roles={['club_manager', 'head_coach']}>
+                  <Box sx={{ display: 'flex', gap: '5px' }}>
+                    <Button
+                      component={motion.button}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      startIcon={<PersonAddIcon />}
+                      onClick={() => navigate(`/clubs/${clubId}/invitations`)}
+                      sx={{
+                        bgcolor: '#f3f4f6',
+                        color: '#000',
+                        fontWeight: 700,
+                        fontSize: 16,
+                        height: 40,
+                        px: '15px',
+                        borderRadius: '5px',
+                        textTransform: 'none',
+                        '&:hover': { bgcolor: '#e5e7eb' },
+                      }}
+                    >
+                      Invite Player
+                    </Button>
+                    <RequireRole roles={['head_coach']}>
+                      <Button
+                        component={motion.button}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        startIcon={<GroupIcon />}
+                        onClick={() => navigate(`/clubs/${clubId}/teams/create`)}
+                        sx={{
+                          bgcolor: '#24FF00',
+                          color: '#000',
+                          fontWeight: 700,
+                          fontSize: 16,
+                          height: 40,
+                          px: '15px',
+                          borderRadius: '5px',
+                          textTransform: 'none',
+                          '&:hover': { bgcolor: '#1ecc00' },
+                        }}
+                      >
+                        Create Team
+                      </Button>
+                    </RequireRole>
+                  </Box>
+                </RequireRole>
+              </Box>
+            </Box>
+
+            {/* Divider */}
+            <Box sx={{ borderTop: '1px solid rgba(255,255,255,0.15)' }} />
+
+            {/* Quick Stats header + period switcher */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography sx={{ fontSize: 18, fontWeight: 600, color: '#fff', letterSpacing: '-0.08px' }}>
+                Quick Stats
+              </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  height: 35,
+                  bgcolor: 'rgba(243,244,246,0.25)',
+                  backdropFilter: 'blur(5px)',
+                  border: '1px solid #777',
+                  borderRadius: '6px',
+                  p: '4px',
+                  gap: 0,
+                }}
+              >
+                {PERIOD_OPTIONS.map((period) => (
+                  <Box
+                    key={period}
+                    onClick={() => setSelectedPeriod(period)}
+                    sx={{
+                      px: '20px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      ...(selectedPeriod === period
+                        ? { bgcolor: '#24FF00', boxShadow: '0 2px 4px rgba(0,0,0,0.12)' }
+                        : {}),
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontSize: 12,
+                        fontWeight: 500,
+                        color: selectedPeriod === period ? '#000' : '#d0d5dd',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {period}
                     </Typography>
                   </Box>
-                </Paper>
-              </Grid>
-            </Grid>
-
-        {/* Staff Invitations */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} md={6}>
-            <StaffInvitationsCard />
-          </Grid>
-        </Grid>
-
-        {/* Recent Activity & Teams */}
-        <Grid container spacing={3}>
-          {/* Recent Activity */}
-          <Grid item xs={12} md={6}>
-            <Paper
-              component={motion.div}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
-              sx={{ p: 3, height: '100%' }}
-            >
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-                Recent Activity
-              </Typography>
-              <List>
-                {dashboardData?.recentActivity.map((activity, index) => (
-                  <ListItem
-                    key={activity.id}
-                    divider
-                    component={motion.div}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.6 + index * 0.1 }}
-                  >
-                    <ListItemText
-                      primary={activity.message}
-                      secondary={activity.time}
-                    />
-                  </ListItem>
                 ))}
-              </List>
-            </Paper>
-          </Grid>
-
-          {/* Teams Overview */}
-          <Grid item xs={12} md={6}>
-            <Paper
-              component={motion.div}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
-              sx={{ p: 3, height: '100%' }}
-            >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  Teams
-                </Typography>
-                <Button
-                  component={motion.button}
-                  whileHover={{ scale: 1.05 }}
-                  size="small"
-                  onClick={() => navigate(`/clubs/${clubId}/teams`)}
-                >
-                  View All
-                </Button>
               </Box>
-              <List>
-                {dashboardData?.teams.map((team, index) => (
-                  <ListItem
-                    key={team.id}
-                    divider
-                    button
-                    component={motion.div}
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.6 + index * 0.1 }}
-                    whileHover={{ x: 4, backgroundColor: 'rgba(0,0,0,0.02)' }}
-                    onClick={() => navigate(`/clubs/${clubId}/teams/${team.id}`)}
-                    sx={{ cursor: 'pointer', borderRadius: 1 }}
-                    secondaryAction={
-                      <Chip
-                        label={team.status}
-                        color={team.status === 'Active' ? 'success' : 'default'}
-                        size="small"
-                      />
-                    }
-                  >
-                    <ListItemText
-                      primary={team.name}
-                      secondary={`${team.playerCount} players`}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Paper>
-          </Grid>
-        </Grid>
-          </>
-        )}
+            </Box>
 
-        {/* Tab Panel: AI Report */}
-        {activeTab === 1 && (
-          <Box
-            component={motion.div}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <ClubAIReport clubId={clubId} clubName={activeContext?.clubName} />
+            {/* Quick Stats highlight cards */}
+            <Box sx={{
+              display: 'flex',
+              gap: '10px',
+              flexDirection: isMobile ? 'row' : { xs: 'column', md: 'row' },
+              ...(isMobile && {
+                overflowX: 'auto',
+                pb: 1,
+                '& > *': { minWidth: '80vw', flexShrink: 0 },
+                '&::-webkit-scrollbar': { height: 4 },
+                '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(255,255,255,0.3)', borderRadius: 2 },
+              }),
+            }}>
+              <QuickStatHighlight title="Top Performer" delay={0.2}>
+                <HighlightPlayerCard
+                  name={highlights?.topPerformer?.name}
+                  level={highlights?.topPerformer?.level}
+                  description={
+                    highlights?.topPerformer
+                      ? { highlight: 'Highest performance consistency', rest: 'across completed drills.' }
+                      : null
+                  }
+                />
+              </QuickStatHighlight>
+
+              <QuickStatHighlight title="Most Improved Player" delay={0.3}>
+                <HighlightPlayerCard
+                  name={highlights?.mostImproved?.name}
+                  level={highlights?.mostImproved?.level}
+                  description={
+                    highlights?.mostImproved
+                      ? { highlight: 'Strongest performance growth', rest: 'across all tracked metrics.' }
+                      : null
+                  }
+                />
+              </QuickStatHighlight>
+
+              <QuickStatHighlight title="Most Attempted Drill" delay={0.4}>
+                <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px' }}>
+                  {highlights?.mostAttemptedDrill?.name || '—'}
+                </Typography>
+                {highlights?.mostAttemptedDrill && (
+                  <Box sx={{ bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(5px)', borderRadius: '73px', p: '5px' }}>
+                    <Typography sx={{ fontSize: 12, color: '#f2f4f7', lineHeight: '15px' }}>
+                      Was completed{' '}
+                      <Box component="span" sx={{ fontWeight: 700, color: '#24FF00' }}>
+                        {highlights.mostAttemptedDrill.count} times
+                      </Box>{' '}
+                      for selected period
+                    </Typography>
+                  </Box>
+                )}
+              </QuickStatHighlight>
+            </Box>
           </Box>
-        )}
-      </Container>
+        </Box>
+
+        {/* ═══════════════════════════════════════════
+            BODY CONTENT
+        ═══════════════════════════════════════════ */}
+        <Box sx={{ px: isMobile ? '12px' : { xs: 1, sm: 2, md: 2 }, pt: '15px', display: 'flex', flexDirection: 'column', gap: isMobile ? '12px' : '20px' }}>
+
+          {activeTab === 0 && (
+            <>
+              {/* ─── Stat Cards Row 1 ─── */}
+              <Box sx={{
+                display: isMobile ? 'grid' : 'flex',
+                ...(isMobile ? { gridTemplateColumns: '1fr 1fr' } : {}),
+                gap: '10px',
+                flexDirection: { xs: 'column', sm: 'row' },
+              }}>
+                {STAT_ROW_1.map((stat, i) => (
+                  <StatCard
+                    key={stat.key}
+                    label={stat.label}
+                    value={getStatValue(stat.key, stat.isDrill)}
+                    icon={stat.icon}
+                    delay={0.05 * i}
+                  />
+                ))}
+              </Box>
+
+              {/* ─── Stat Cards Row 2 ─── */}
+              <Box sx={{
+                display: isMobile ? 'grid' : 'flex',
+                ...(isMobile ? { gridTemplateColumns: '1fr 1fr' } : {}),
+                gap: '10px',
+                flexDirection: { xs: 'column', sm: 'row' },
+              }}>
+                {STAT_ROW_2.map((stat, i) => (
+                  <StatCard
+                    key={stat.key}
+                    label={stat.label}
+                    value={getStatValue(stat.key, stat.isDrill)}
+                    icon={stat.icon}
+                    delay={0.05 * (i + 4)}
+                  />
+                ))}
+              </Box>
+
+              {/* ─── Staff Invitations ─── */}
+              <StaffInvitationsCard />
+
+              {/* ─── Teams Section ─── */}
+              <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: '20px' }}>
+                  <Typography sx={{ fontSize: 18, fontWeight: 600, color: '#000', letterSpacing: '-0.08px' }}>
+                    Teams
+                  </Typography>
+                  <Button
+                    component={motion.button}
+                    whileHover={{ scale: 1.02 }}
+                    size="small"
+                    onClick={() => navigate(`/clubs/${clubId}/teams`)}
+                    sx={{
+                      bgcolor: '#f3f4f6',
+                      border: '1px solid #ebebeb',
+                      borderRadius: '5px',
+                      color: '#545963',
+                      fontSize: 14,
+                      fontWeight: 500,
+                      textTransform: 'none',
+                      px: '10px',
+                      py: '5px',
+                      '&:hover': { bgcolor: '#e8eaed' },
+                    }}
+                  >
+                    View All
+                  </Button>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: '5px',
+                    overflowX: 'auto',
+                    pb: 1,
+                    '&::-webkit-scrollbar': { height: 6 },
+                    '&::-webkit-scrollbar-thumb': { bgcolor: '#d0d5dd', borderRadius: 3 },
+                  }}
+                >
+                  {dashboardData?.teams?.length > 0 ? (
+                    dashboardData.teams.map((team, index) => (
+                      <TeamCard key={team.id} team={team} clubId={clubId} navigate={navigate} index={index} />
+                    ))
+                  ) : (
+                    <Box sx={{ py: 4, textAlign: 'center', width: '100%' }}>
+                      <Typography color="text.secondary">No teams yet. Create your first team to get started.</Typography>
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+
+              {/* ─── Recent Activity ─── */}
+              <Box>
+                <Typography sx={{ fontSize: 18, fontWeight: 600, color: '#000', letterSpacing: '-0.08px', mb: '10px' }}>
+                  Recent Activity
+                </Typography>
+                <Grid container spacing={2}>
+                  {dashboardData?.recentActivity?.length > 0 ? (
+                    <>
+                      <Grid item xs={12} md={6}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          {dashboardData.recentActivity
+                            .filter((_, i) => i % 2 === 0)
+                            .map((activity, idx) => (
+                              <Box key={activity.id} sx={{ borderBottom: '1px solid #ebebeb' }}>
+                                <ActivityItem activity={activity} index={idx} />
+                              </Box>
+                            ))}
+                        </Box>
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          {dashboardData.recentActivity
+                            .filter((_, i) => i % 2 === 1)
+                            .map((activity, idx) => (
+                              <Box key={activity.id} sx={{ borderBottom: '1px solid #ebebeb' }}>
+                                <ActivityItem activity={activity} index={idx} />
+                              </Box>
+                            ))}
+                        </Box>
+                      </Grid>
+                    </>
+                  ) : (
+                    <Grid item xs={12}>
+                      <Box sx={{ py: 4, textAlign: 'center' }}>
+                        <Typography color="text.secondary">No recent activity to display.</Typography>
+                      </Box>
+                    </Grid>
+                  )}
+                </Grid>
+              </Box>
+            </>
+          )}
+
+          {/* Tab Panel: AI Report */}
+          {activeTab === 1 && (
+            <Box
+              component={motion.div}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ClubAIReport clubId={clubId} clubName={activeContext?.clubName} />
+            </Box>
+          )}
+        </Box>
+
+      </Box>
     </AppLayout>
   );
 };

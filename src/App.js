@@ -27,6 +27,7 @@ import MissionDetail from "./pages/MissionDetail";
 import PrivateRoute from "./components/PrivateRoute";
 import AuthValidator from "./components/AuthValidator";
 import ClubDashboard from "./pages/club/ClubDashboard";
+import AcademyBranding from "./pages/club/AcademyBranding";
 import ClubProfile from "./pages/club/ClubProfile";
 import ClubTeams from "./pages/club/ClubTeams";
 import CreateTeam from "./pages/club/CreateTeam";
@@ -284,6 +285,14 @@ function App() {
           element={
             <PrivateRoute>
               <ClubDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/clubs/:clubId/branding"
+          element={
+            <PrivateRoute>
+              <AcademyBranding />
             </PrivateRoute>
           }
         />

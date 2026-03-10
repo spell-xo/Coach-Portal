@@ -133,7 +133,7 @@ const Login = () => {
         navigate(redirectTo);
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Login failed. Please try again.";
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || "Login failed. Please try again.";
       dispatch(setError(errorMessage));
     } finally {
       dispatch(setLoading(false));

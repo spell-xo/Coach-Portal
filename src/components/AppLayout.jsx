@@ -1,34 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Box, useTheme, useMediaQuery } from "@mui/material";
 import PlatformAdminBanner from "./PlatformAdminBanner";
-import CommandPalette from "./CommandPalette";
 import Sidebar from "./layout/Sidebar";
-import Header from "./layout/Header";
+import BottomBar from "./BottomBar";
+import MobileBottomBar from "./layout/MobileBottomBar";
 import "../assets/styles/global.scss";
 
 const AppLayout = ({ children }) => {
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
+  const isMobile = useMediaQuery("(max-width:767px)");
   const prevIsTabletRef = useRef(isTablet);
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setCommandPaletteOpen(true);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
 
   const [openDrawer, setOpenDrawer] = useState(() => {
     const isTabletOnInit = window.innerWidth < 1200;
-    if (isTabletOnInit) {
-      return false;
-    }
+    if (isTabletOnInit) return false;
     const savedDrawer = localStorage.getItem("drawer");
     return savedDrawer === null ? true : savedDrawer === "true";
   });
@@ -49,36 +35,24 @@ const AppLayout = ({ children }) => {
   }
 
   return (
-    <div>
-      <Header
-        handleDrawer={handleDrawer}
-        setCommandPaletteOpen={setCommandPaletteOpen}
-      />
+    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f8f8f8" }}>
+      {!isMobile && <Sidebar open={openDrawer} close={handleDrawer} />}
+
       <Box
-        sx={{ display: "flex" }}
-        className="main-layout">
-        <Sidebar
-          open={openDrawer}
-          close={handleDrawer}
-        />
-
-        {/* Main Content */}
-        <Box
-          component="main"
-          sx={{ flexGrow: 1 }}
-          className="main-content">
-          {/* Platform Admin Banner - shown when admin is viewing club in platform admin context */}
-          <PlatformAdminBanner />
-          {children}
-        </Box>
-
-        {/* Command Palette */}
-        <CommandPalette
-          open={commandPaletteOpen}
-          onClose={() => setCommandPaletteOpen(false)}
-        />
+        component="main"
+        sx={{
+          flexGrow: 1,
+          minWidth: 0,
+          pb: isMobile ? "72px" : 3,
+        }}
+        className="main-content"
+      >
+        <PlatformAdminBanner />
+        {children}
       </Box>
-    </div>
+
+      {isMobile ? <MobileBottomBar /> : <BottomBar />}
+    </Box>
   );
 };
 

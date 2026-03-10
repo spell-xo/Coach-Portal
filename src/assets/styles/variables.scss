@@ -2,6 +2,7 @@ $screen-xl-max: 1535px;
 $screen-lg-max: 1199px;
 $screen-md-max: 899px;
 $screen-sm-max: 599px;
+$screen-mobile-max: 767px;
 
 @mixin xl {
   @media (max-width: #{$screen-xl-max}) {
@@ -23,6 +24,12 @@ $screen-sm-max: 599px;
 
 @mixin sm {
   @media (max-width: #{$screen-sm-max}) {
+    @content;
+  }
+}
+
+@mixin mobile {
+  @media (max-width: #{$screen-mobile-max}) {
     @content;
   }
 }
