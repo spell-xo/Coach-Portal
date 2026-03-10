@@ -25,6 +25,7 @@ import CreateMission from "./pages/CreateMission";
 import MissionDetail from "./pages/MissionDetail";
 import PrivateRoute from "./components/PrivateRoute";
 import AuthValidator from "./components/AuthValidator";
+import AutoLoginBootstrap from "./components/AutoLoginBootstrap";
 import ClubDashboard from "./pages/club/ClubDashboard";
 import AcademyBranding from "./pages/club/AcademyBranding";
 import ClubProfile from "./pages/club/ClubProfile";
@@ -70,6 +71,7 @@ function App() {
   console.log('[App] Component rendering');
   return (
     <AuthValidator>
+      <AutoLoginBootstrap>
       <Toaster />
       <Routes>
         {/* Public routes */}
@@ -592,6 +594,7 @@ function App() {
           }
         />
       </Routes>
+      </AutoLoginBootstrap>
     </AuthValidator>
   );
 }
