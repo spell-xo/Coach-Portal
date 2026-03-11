@@ -192,8 +192,8 @@ const TeamCard = ({ team, clubId, navigate, index }) => (
     transition={{ delay: 0.1 * index, duration: 0.4 }}
     onClick={() => navigate(`/clubs/${clubId}/teams/${team.id}`)}
     sx={{
-      minWidth: 300,
-      width: 300,
+      minWidth: 330,
+      width: 330,
       height: 240,
       borderRadius: '7.5px',
       border: '1px solid #ebebeb',
