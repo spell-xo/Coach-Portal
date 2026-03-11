@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import Register from "./pages/Register";
 import Signup from "./pages/Signup";
-import Dashboard from "./pages/Dashboard";
 import Teams from "./pages/Teams";
 import TeamDetails from "./pages/TeamDetails";
 import AllPlayers from "./pages/AllPlayers";
@@ -67,6 +66,9 @@ import PeilUsageTracking from "./pages/superadmin/PeilUsageTracking";
 import CohortInvestigation from "./pages/superadmin/CohortInvestigation";
 import PeilReports from "./pages/superadmin/PeilReports";
 
+const HARDCODED_FALLBACK_CLUB_ID = "6904a5c7457394b8e39d4307";
+const DEFAULT_CLUB_ID = process.env.REACT_APP_DEFAULT_CLUB_ID || HARDCODED_FALLBACK_CLUB_ID;
+
 function App() {
   console.log('[App] Component rendering');
   return (
@@ -112,9 +114,7 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
+            <Navigate to={`/clubs/${DEFAULT_CLUB_ID}/dashboard`} replace />
           }
         />
         <Route
@@ -577,7 +577,7 @@ function App() {
           path="/"
           element={
             <Navigate
-              to="/dashboard"
+              to={`/clubs/${DEFAULT_CLUB_ID}/dashboard`}
               replace
             />
           }
@@ -588,7 +588,7 @@ function App() {
           path="*"
           element={
             <Navigate
-              to="/dashboard"
+              to={`/clubs/${DEFAULT_CLUB_ID}/dashboard`}
               replace
             />
           }

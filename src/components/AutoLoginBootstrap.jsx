@@ -9,11 +9,12 @@ import contextService from '../api/contextService';
 const DEMO_EMAIL = 'headcoach@sk.com';
 const DEMO_PASSWORD = 'Aim@2025';
 
-const DEFAULT_CLUB_ID = process.env.REACT_APP_DEFAULT_CLUB_ID;
+const HARDCODED_FALLBACK_CLUB_ID = '6904a5c7457394b8e39d4307';
+const DEFAULT_CLUB_ID = process.env.REACT_APP_DEFAULT_CLUB_ID || HARDCODED_FALLBACK_CLUB_ID;
 
 /**
  * When login fails, show Club Dashboard UI with mock context (no API data).
- * Set REACT_APP_DEFAULT_CLUB_ID in Vercel to your club ID for data to load.
+ * Uses env club id first, then hardcoded fallback club id.
  */
 const applyFallbackClubContext = (dispatch, navigate) => {
   if (!DEFAULT_CLUB_ID) return false;
@@ -97,7 +98,7 @@ const AutoLoginBootstrap = ({ children }) => {
         } else if (activeContext?.type === 'club' && activeContext?.clubId) {
           redirectTo = `/clubs/${activeContext.clubId}/dashboard`;
         } else {
-          redirectTo = '/dashboard';
+          redirectTo = `/clubs/${DEFAULT_CLUB_ID}/dashboard`;
         }
 
         if (redirectTo && redirectTo !== location.pathname) {
@@ -108,7 +109,7 @@ const AutoLoginBootstrap = ({ children }) => {
         if (applyFallbackClubContext(dispatch, navigate)) {
           // Fallback applied
         } else {
-          navigate('/dashboard', { replace: true });
+          navigate(`/clubs/${HARDCODED_FALLBACK_CLUB_ID}/dashboard`, { replace: true });
         }
       } finally {
         if (!cancelled) setBootstrapped(true);
