@@ -3,16 +3,18 @@ import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { selectUserRoles, selectPrimaryRole, updateUserRole, selectHasMultipleRoles, selectIsClubContext } from "../store/authSlice";
+import { selectUserRoles, selectPrimaryRole, updateUserRole, selectHasMultipleRoles, selectIsClubContext, selectActiveContext } from "../store/authSlice";
 import authService from "../api/authService";
 import { Button, Menu, MenuItem, ListItemIcon, CircularProgress } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
+import { getDashboardPath } from "../utils/navigation";
 
 export default function RoleSwitcher() {
   const [switchingRole, setSwitchingRole] = useState(false);
   const [roleMenuAnchor, setRoleMenuAnchor] = useState(null);
   const userRoles = useSelector(selectUserRoles);
   const primaryRole = useSelector(selectPrimaryRole);
+  const activeContext = useSelector(selectActiveContext);
   const hasMultipleRoles = useSelector(selectHasMultipleRoles);
   const isClubContext = useSelector(selectIsClubContext);
 
@@ -49,7 +51,7 @@ export default function RoleSwitcher() {
 
         // Navigate to appropriate dashboard
         if (newRole === "coach") {
-          navigate("/dashboard");
+          navigate(getDashboardPath(activeContext, "coach"));
         } else if (newRole === "player") {
           navigate("/player/dashboard");
         }

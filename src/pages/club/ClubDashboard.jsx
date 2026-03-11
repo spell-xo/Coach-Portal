@@ -529,7 +529,7 @@ const ClubDashboard = () => {
             {/* Breadcrumbs + Edit button */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate('/dashboard')}>
+                <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate(`/clubs/${clubId}/dashboard`)}>
                   <HomeIcon sx={{ fontSize: 15, color: '#a1a1a1' }} />
                   <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#a1a1a1' }}>Home</Typography>
                 </Box>

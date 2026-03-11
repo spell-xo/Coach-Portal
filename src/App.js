@@ -79,7 +79,7 @@ function App() {
         {/* Public routes */}
         <Route
           path="/login"
-          element={<Navigate to="/dashboard" replace />}
+          element={<Navigate to={`/clubs/${DEFAULT_CLUB_ID}/dashboard`} replace />}
         />
         <Route
           path="/register"
@@ -167,6 +167,14 @@ function App() {
         />
         <Route
           path="/messages"
+          element={
+            <PrivateRoute>
+              <Messages />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/clubs/:clubId/messages"
           element={
             <PrivateRoute>
               <Messages />

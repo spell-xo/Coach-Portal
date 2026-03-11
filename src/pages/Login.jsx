@@ -9,6 +9,9 @@ import authService from "../api/authService";
 import contextService from "../api/contextService";
 import { icons } from "../styles/icons";
 
+const HARDCODED_FALLBACK_CLUB_ID = "6904a5c7457394b8e39d4307";
+const DEFAULT_CLUB_ID = process.env.REACT_APP_DEFAULT_CLUB_ID || HARDCODED_FALLBACK_CLUB_ID;
+
 const validationSchema = Yup.object({
   email: Yup.string().email("Invalid email address").required("Email is required"),
   password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
@@ -122,7 +125,7 @@ const Login = () => {
             console.log("[Login Debug] Using club context:", activeContext);
             redirectTo = `/clubs/${activeContext.clubId}/dashboard`;
           } else if (activeRole === "coach" || userRoles.includes("coach")) {
-            redirectTo = "/dashboard"; // Coach dashboard (personal context)
+            redirectTo = `/clubs/${DEFAULT_CLUB_ID}/dashboard`; // Coach fallback to club dashboard
           } else {
             redirectTo = "/"; // Fallback to home
           }

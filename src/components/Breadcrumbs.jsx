@@ -1,8 +1,11 @@
 import React from "react";
 import { Breadcrumbs as MuiBreadcrumbs, Link, Typography, Box } from "@mui/material";
 import { Link as RouterLink, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import HomeIcon from "@mui/icons-material/Home";
+import { selectActiveContext, selectPrimaryRole } from "../store/authSlice";
+import { getDashboardPath } from "../utils/navigation";
 
 const pathNameMap = {
   dashboard: "Dashboard",
@@ -21,6 +24,9 @@ const pathNameMap = {
 
 const Breadcrumbs = ({ items }) => {
   const location = useLocation();
+  const activeContext = useSelector(selectActiveContext);
+  const primaryRole = useSelector(selectPrimaryRole);
+  const homePath = getDashboardPath(activeContext, primaryRole);
 
   const generateBreadcrumbs = () => {
     if (items) return items;
@@ -63,7 +69,7 @@ const Breadcrumbs = ({ items }) => {
         }}>
         <Link
           component={RouterLink}
-          to="/dashboard"
+          to={homePath}
           underline="hover"
           sx={{
             display: "flex",
