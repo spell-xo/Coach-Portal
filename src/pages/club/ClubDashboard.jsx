@@ -201,8 +201,8 @@ const TeamCard = ({ team, clubId, navigate, index }) => (
     transition={{ delay: 0.1 * index, duration: 0.4 }}
     onClick={() => navigate(`/clubs/${clubId}/teams/${team.id}`)}
     sx={{
-      minWidth: 350,
-      width: 350,
+      minWidth: 370,
+      width: 370,
       height: 240,
       borderRadius: '7.5px',
       border: '1px solid #ebebeb',
@@ -302,17 +302,29 @@ const TeamCard = ({ team, clubId, navigate, index }) => (
       sx={{
         position: 'relative',
         zIndex: 1,
-        mx: '15px',
-        mb: '15px',
+        mx: '7px',
+        mb: '7px',
         backdropFilter: 'blur(5px)',
         bgcolor: 'rgba(243,244,246,0.15)',
         borderRadius: '10px',
         overflow: 'hidden',
         display: 'flex',
-        height: 82,
+        minHeight: 82,
       }}
     >
-      <Box sx={{ p: '7px', display: 'flex', flexDirection: 'column', gap: '5px', flex: 1 }}>
+      <Box
+        sx={{
+          px: '7px',
+          pt: '7px',
+          pb: '7px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          gap: '5px',
+          flex: 1,
+          minWidth: 0,
+        }}
+      >
         <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#fff', lineHeight: '22px' }}>
           Performer Of the Week
         </Typography>
@@ -336,7 +348,7 @@ const TeamCard = ({ team, clubId, navigate, index }) => (
       </Box>
       <Box
         sx={{
-          width: 140,
+          width: 150,
           minWidth: 0,
           overflow: 'hidden',
           position: 'relative',
