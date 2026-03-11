@@ -408,9 +408,9 @@ const ClubDashboard = () => {
         ],
         teams:
           response.data.teams?.slice(0, 5).map((team) => ({
-            id: team._id,
-            name: team.name,
-            playerCount: team.playerCount || 0,
+          id: team._id,
+          name: team.name,
+          playerCount: team.playerCount || 0,
             coachCount: team.coachCount || 1,
             status: team.status || 'Active',
             backgroundImage: team.backgroundImage || null,
@@ -577,11 +577,11 @@ const ClubDashboard = () => {
                   sx={{ fontSize: { xs: 28, md: 42 }, fontWeight: 700, color: '#fff', letterSpacing: '-0.13px', lineHeight: 1.1 }}
                 >
                   {clubName}
-                </Typography>
+            </Typography>
                 <Typography sx={{ fontSize: 16, fontWeight: 500, color: '#d0d5dd' }}>
-                  Welcome to your club management dashboard
-                </Typography>
-              </Box>
+              Welcome to your club management dashboard
+            </Typography>
+          </Box>
 
               {/* Right: Active Users + CTAs */}
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: isMobile ? 'stretch' : 'flex-end', gap: '12px' }}>
@@ -590,14 +590,14 @@ const ClubDashboard = () => {
                   <Typography sx={{ fontSize: 16, fontWeight: 500, color: '#d0d5dd' }}>Active Users:</Typography>
                   <Typography sx={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>({activeUsers})</Typography>
                 </Box>
-                <RequireRole roles={['club_manager', 'head_coach']}>
+          <RequireRole roles={['club_manager', 'head_coach']}>
                   <Box sx={{ display: 'flex', gap: '5px' }}>
-                    <Button
-                      component={motion.button}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+              <Button
+                component={motion.button}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                       startIcon={<PersonAddIcon />}
-                      onClick={() => navigate(`/clubs/${clubId}/invitations`)}
+                onClick={() => navigate(`/clubs/${clubId}/invitations`)}
                       sx={{
                         bgcolor: '#f3f4f6',
                         color: '#000',
@@ -609,16 +609,16 @@ const ClubDashboard = () => {
                         textTransform: 'none',
                         '&:hover': { bgcolor: '#e5e7eb' },
                       }}
-                    >
-                      Invite Player
-                    </Button>
-                    <RequireRole roles={['head_coach']}>
-                      <Button
-                        component={motion.button}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+              >
+                Invite Player
+              </Button>
+              <RequireRole roles={['head_coach']}>
+                <Button
+                  component={motion.button}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                         startIcon={<GroupIcon />}
-                        onClick={() => navigate(`/clubs/${clubId}/teams/create`)}
+                  onClick={() => navigate(`/clubs/${clubId}/teams/create`)}
                         sx={{
                           bgcolor: '#24FF00',
                           color: '#000',
@@ -630,13 +630,13 @@ const ClubDashboard = () => {
                           textTransform: 'none',
                           '&:hover': { bgcolor: '#1ecc00' },
                         }}
-                      >
-                        Create Team
-                      </Button>
-                    </RequireRole>
-                  </Box>
-                </RequireRole>
-              </Box>
+                >
+                  Create Team
+                </Button>
+              </RequireRole>
+            </Box>
+          </RequireRole>
+        </Box>
             </Box>
 
             {/* Divider */}
@@ -685,11 +685,11 @@ const ClubDashboard = () => {
                       }}
                     >
                       {period}
-                    </Typography>
-                  </Box>
+                        </Typography>
+                      </Box>
                 ))}
-              </Box>
-            </Box>
+                      </Box>
+                      </Box>
 
             {/* Quick Stats highlight cards */}
             <Box sx={{
@@ -731,7 +731,7 @@ const ClubDashboard = () => {
               <QuickStatHighlight title="Most Attempted Drill" delay={0.4}>
                 <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px' }}>
                   {highlights?.mostAttemptedDrill?.name || '—'}
-                </Typography>
+                  </Typography>
                 {highlights?.mostAttemptedDrill && (
                   <Box sx={{ bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(5px)', borderRadius: '73px', p: '5px' }}>
                     <Typography sx={{ fontSize: 12, color: '#f2f4f7', lineHeight: '15px' }}>
@@ -798,13 +798,13 @@ const ClubDashboard = () => {
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: '20px' }}>
                   <Typography sx={{ fontSize: 18, fontWeight: 600, color: '#000', letterSpacing: '-0.08px' }}>
-                    Teams
-                  </Typography>
-                  <Button
-                    component={motion.button}
+                  Teams
+                </Typography>
+                <Button
+                  component={motion.button}
                     whileHover={{ scale: 1.02 }}
-                    size="small"
-                    onClick={() => navigate(`/clubs/${clubId}/teams`)}
+                  size="small"
+                  onClick={() => navigate(`/clubs/${clubId}/teams`)}
                     sx={{
                       bgcolor: '#f3f4f6',
                       border: '1px solid #ebebeb',
@@ -817,10 +817,10 @@ const ClubDashboard = () => {
                       py: '5px',
                       '&:hover': { bgcolor: '#e8eaed' },
                     }}
-                  >
-                    View All
-                  </Button>
-                </Box>
+                >
+                  View All
+                </Button>
+              </Box>
 
                 <Box
                   sx={{
@@ -862,7 +862,7 @@ const ClubDashboard = () => {
                               </Box>
                             ))}
                         </Box>
-                      </Grid>
+          </Grid>
                       <Grid item xs={12} md={6}>
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                           {dashboardData.recentActivity
@@ -873,7 +873,7 @@ const ClubDashboard = () => {
                               </Box>
                             ))}
                         </Box>
-                      </Grid>
+        </Grid>
                     </>
                   ) : (
                     <Grid item xs={12}>
@@ -884,20 +884,20 @@ const ClubDashboard = () => {
                   )}
                 </Grid>
               </Box>
-            </>
-          )}
+          </>
+        )}
 
-          {/* Tab Panel: AI Report */}
-          {activeTab === 1 && (
-            <Box
-              component={motion.div}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <ClubAIReport clubId={clubId} clubName={activeContext?.clubName} />
-            </Box>
-          )}
+        {/* Tab Panel: AI Report */}
+        {activeTab === 1 && (
+          <Box
+            component={motion.div}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <ClubAIReport clubId={clubId} clubName={activeContext?.clubName} />
+          </Box>
+        )}
         </Box>
 
       </Box>

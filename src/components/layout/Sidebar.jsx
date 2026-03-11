@@ -93,7 +93,7 @@ const NavItem = React.memo(({ item, location, navigate, isTablet, closeSidebar, 
             py: "7px",
             borderRadius: 0,
             bgcolor: (isItemActive || hasActiveChild) ? "#24FF00" : "transparent",
-            "&:hover": {
+              "&:hover": {
               bgcolor: (isItemActive || hasActiveChild) ? "#24FF00" : "rgba(0,0,0,0.04)",
             },
           }}
@@ -101,7 +101,7 @@ const NavItem = React.memo(({ item, location, navigate, isTablet, closeSidebar, 
           <Box sx={{ display: "flex", alignItems: "center", width: "100%", gap: "10px", p: "5px" }}>
             <ListItemIcon
               sx={{
-                minWidth: 0,
+                  minWidth: 0,
                 color: (isItemActive || hasActiveChild) ? "#000" : "#545963",
                 "& .MuiSvgIcon-root": { fontSize: 24 },
               }}
@@ -110,18 +110,18 @@ const NavItem = React.memo(({ item, location, navigate, isTablet, closeSidebar, 
             </ListItemIcon>
             {sidebarOpen && (
               <>
-                <Typography
-                  sx={{
+            <Typography
+              sx={{
                     fontSize: 16,
                     fontWeight: (isItemActive || hasActiveChild) ? 700 : 500,
                     color: (isItemActive || hasActiveChild) ? "#000" : "#545963",
-                    flex: 1,
+                flex: 1,
                     letterSpacing: "-0.05px",
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {item.label}
-                </Typography>
+              {item.label}
+            </Typography>
                 {hasChildren && (isExpanded ? <ExpandLess sx={{ color: "#545963" }} /> : <ExpandMore sx={{ color: "#545963" }} />)}
               </>
             )}
@@ -772,11 +772,11 @@ export default function Sidebar({ open, close }) {
   };
 
   if (isTablet) {
-    return (
-      <MuiDrawer
-        variant="temporary"
-        open={open}
-        onClose={close}
+  return (
+        <MuiDrawer
+          variant="temporary"
+          open={open}
+          onClose={close}
         ModalProps={{ keepMounted: true }}
         PaperProps={{
           sx: {
@@ -787,7 +787,7 @@ export default function Sidebar({ open, close }) {
         }}
       >
         {sidebarContent}
-      </MuiDrawer>
+        </MuiDrawer>
     );
   }
 
