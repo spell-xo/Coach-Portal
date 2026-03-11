@@ -30,7 +30,6 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import StarIcon from '@mui/icons-material/Star';
 import AppLayout from '../../components/AppLayout';
 import { SkeletonStatCard } from '../../components/skeletons';
-import RequireRole from '../../components/RequireRole';
 import ClubAIReport from '../../components/ClubAIReport';
 import { selectActiveContext } from '../../store/authSlice';
 import clubService from '../../api/clubService';
@@ -678,8 +677,7 @@ const ClubDashboard = () => {
                   <Typography sx={{ fontSize: 16, fontWeight: 500, color: '#d0d5dd' }}>Active Users:</Typography>
                   <Typography sx={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>({activeUsers})</Typography>
                 </Box>
-          <RequireRole roles={['club_manager', 'head_coach']}>
-                  <Box sx={{ display: 'flex', gap: '5px' }}>
+                <Box sx={{ display: 'flex', gap: '5px', width: isMobile ? '100%' : 'auto' }}>
               <Button
                 component={motion.button}
                 whileHover={{ scale: 1.02 }}
@@ -687,6 +685,7 @@ const ClubDashboard = () => {
                       startIcon={<PersonAddIcon />}
                 onClick={() => navigate(`/clubs/${clubId}/invitations`)}
                       sx={{
+                        flex: isMobile ? 1 : undefined,
                         bgcolor: '#f3f4f6',
                         color: '#000',
                         fontWeight: 700,
@@ -700,7 +699,6 @@ const ClubDashboard = () => {
               >
                 Invite Player
               </Button>
-              <RequireRole roles={['head_coach']}>
                 <Button
                   component={motion.button}
                   whileHover={{ scale: 1.02 }}
@@ -708,6 +706,7 @@ const ClubDashboard = () => {
                         startIcon={<GroupIcon />}
                   onClick={() => navigate(`/clubs/${clubId}/teams/create`)}
                         sx={{
+                          flex: isMobile ? 1 : undefined,
                           bgcolor: '#24FF00',
                           color: '#000',
                           fontWeight: 700,
@@ -721,9 +720,7 @@ const ClubDashboard = () => {
                 >
                   Create Team
                 </Button>
-              </RequireRole>
             </Box>
-          </RequireRole>
         </Box>
             </Box>
 
