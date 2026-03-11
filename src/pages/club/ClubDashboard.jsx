@@ -797,7 +797,8 @@ const ClubDashboard = () => {
               ...(isMobile && {
                 overflowX: 'auto',
                 pb: 1,
-                '& > *': { minWidth: '80vw', flexShrink: 0 },
+                // Mobile: fixed-width cards (carousel), not fill mode.
+                '& > *': { width: '320px', minWidth: '320px', flex: '0 0 auto' },
                 '&::-webkit-scrollbar': { height: 4 },
                 '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(255,255,255,0.3)', borderRadius: 2 },
               }),
