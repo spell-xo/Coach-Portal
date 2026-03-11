@@ -59,6 +59,44 @@ const STAT_ROW_2 = [
 
 const PERIOD_OPTIONS = ['Weekly', 'Monthly', 'Yearly'];
 
+// ─── Demo mode mock data (used when API unavailable and REACT_APP_DEMO_MODE=true) ───
+const MOCK_DASHBOARD_DATA = {
+  stats: {
+    teamCount: 6,
+    coachCount: 12,
+    playerCount: 147,
+    activeTeams: 5,
+    drills: {
+      totalUploaded: 2847,
+      awaitingAnnotation: 23,
+      readyForProcessing: 15,
+      analysed: 2809,
+      uniqueUsers: 89,
+      uploadedViaApp: 2134,
+      uploadedViaPortal: 713,
+    },
+  },
+  recentActivity: [
+    { id: 1, message: '<b>Marcus Johnson</b> completed Ball Mastery drill', time: '2 min ago', type: 'drill_completed' },
+    { id: 2, message: '<b>Emma Williams</b> unlocked Level 12', time: '15 min ago', type: 'level_unlocked' },
+    { id: 3, message: '<b>James Chen</b> set a personal best in Passing Accuracy', time: '32 min ago', type: 'personal_best' },
+    { id: 4, message: '<b>Sophie Martinez</b> completed First Touch drill', time: '1 hour ago', type: 'drill_completed' },
+    { id: 5, message: '<b>Oliver Brown</b> unlocked Level 8', time: '2 hours ago', type: 'level_unlocked' },
+  ],
+  teams: [
+    { id: '1', name: 'U18 Elite', playerCount: 22, coachCount: 3, status: 'Active', backgroundImage: null, topPerformer: { name: 'Marcus Johnson', level: 'Level 15', xp: 4520, drills: 156, missions: 42, photo: null } },
+    { id: '2', name: 'U16 Development', playerCount: 28, coachCount: 2, status: 'Active', backgroundImage: null, topPerformer: { name: 'Emma Williams', level: 'Level 12', xp: 3890, drills: 134, missions: 38, photo: null } },
+    { id: '3', name: 'U14 Academy', playerCount: 32, coachCount: 3, status: 'Active', backgroundImage: null, topPerformer: { name: 'James Chen', level: 'Level 10', xp: 2950, drills: 98, missions: 29, photo: null } },
+    { id: '4', name: 'U12 Foundation', playerCount: 35, coachCount: 2, status: 'Active', backgroundImage: null, topPerformer: { name: 'Sophie Martinez', level: 'Level 8', xp: 2100, drills: 76, missions: 21, photo: null } },
+    { id: '5', name: 'U10 Grassroots', playerCount: 30, coachCount: 2, status: 'Active', backgroundImage: null, topPerformer: { name: 'Oliver Brown', level: 'Level 6', xp: 1450, drills: 52, missions: 15, photo: null } },
+  ],
+  highlights: {
+    topPerformer: { name: 'Marcus Johnson', level: 'Level 15' },
+    mostImproved: { name: 'Sophie Chen', level: 'Level 8' },
+    mostAttemptedDrill: { name: 'Ball Mastery', count: 342 },
+  },
+};
+
 // ─── Sub-components ───
 
 const StatCard = ({ label, value, icon, delay = 0 }) => (
@@ -432,7 +470,14 @@ const ClubDashboard = () => {
       setError(null);
     } catch (err) {
       console.error('Error loading dashboard:', err);
-      setError(err.response?.data?.message || 'Failed to load dashboard data');
+      // Demo mode: use mock data when API fails
+      if (process.env.REACT_APP_DEMO_MODE === 'true') {
+        setDashboardData(MOCK_DASHBOARD_DATA);
+        setClubBranding(null);
+        setError(null);
+      } else {
+        setError(err.response?.data?.message || 'Failed to load dashboard data');
+      }
     } finally {
       setLoading(false);
     }
