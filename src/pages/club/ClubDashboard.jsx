@@ -174,7 +174,16 @@ const HighlightPlayerCard = ({ name, level, description }) => (
       </Box>
     </Box>
     {description && (
-      <Box sx={{ bgcolor: 'rgba(255,255,255,0.2)', borderRadius: '73px', p: '5px' }}>
+      <Box
+        sx={{
+          bgcolor: 'rgba(255,255,255,0.2)',
+          borderRadius: '73px',
+          display: 'inline-flex',
+          alignSelf: 'flex-start',
+          px: '5px',
+          py: '5px',
+        }}
+      >
         <Typography sx={{ fontSize: 12, color: '#f2f4f7', lineHeight: '15px' }}>
           <Box component="span" sx={{ fontWeight: 700, color: '#24FF00' }}>{description.highlight}</Box>
           {' '}{description.rest}
@@ -192,8 +201,8 @@ const TeamCard = ({ team, clubId, navigate, index }) => (
     transition={{ delay: 0.1 * index, duration: 0.4 }}
     onClick={() => navigate(`/clubs/${clubId}/teams/${team.id}`)}
     sx={{
-      minWidth: 330,
-      width: 330,
+      minWidth: 350,
+      width: 350,
       height: 240,
       borderRadius: '7.5px',
       border: '1px solid #ebebeb',
@@ -327,7 +336,9 @@ const TeamCard = ({ team, clubId, navigate, index }) => (
       </Box>
       <Box
         sx={{
-          width: 129,
+          width: 140,
+          minWidth: 0,
+          overflow: 'hidden',
           position: 'relative',
           bgcolor: '#222',
           display: 'flex',
@@ -341,10 +352,27 @@ const TeamCard = ({ team, clubId, navigate, index }) => (
           }),
         }}
       >
-        <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>
+        <Typography
+          sx={{
+            fontSize: 12,
+            fontWeight: 600,
+            color: '#fff',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
           {team.topPerformer?.name || '—'}
         </Typography>
-        <Typography sx={{ fontSize: 12, color: '#d0d5dd' }}>
+        <Typography
+          sx={{
+            fontSize: 12,
+            color: '#d0d5dd',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
           {team.topPerformer?.level || '—'}
         </Typography>
       </Box>
@@ -778,7 +806,17 @@ const ClubDashboard = () => {
                   {highlights?.mostAttemptedDrill?.name || '—'}
                   </Typography>
                 {highlights?.mostAttemptedDrill && (
-                  <Box sx={{ bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(5px)', borderRadius: '73px', p: '5px' }}>
+                  <Box
+                    sx={{
+                      bgcolor: 'rgba(255,255,255,0.2)',
+                      backdropFilter: 'blur(5px)',
+                      borderRadius: '73px',
+                      display: 'inline-flex',
+                      alignSelf: 'flex-start',
+                      px: '5px',
+                      py: '5px',
+                    }}
+                  >
                     <Typography sx={{ fontSize: 12, color: '#f2f4f7', lineHeight: '15px' }}>
                       Was completed{' '}
                       <Box component="span" sx={{ fontWeight: 700, color: '#24FF00' }}>

@@ -697,13 +697,21 @@ export default function Sidebar({ open, close }) {
         <Divider sx={{ mx: "12px" }} />
 
         {/* Dark Mode / Settings / Logout */}
-        <Box sx={{ display: "flex", gap: "5px", p: "12px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: "5px",
+            p: "12px",
+            flexDirection: open ? "row" : "column",
+          }}
+        >
           <Tooltip title="Dark Mode" placement="top">
             <Box
               onClick={themeCtx.toggleDarkMode}
               sx={{
-                flex: 1,
-                height: 55,
+                flex: open ? 1 : undefined,
+                width: open ? undefined : "100%",
+                height: open ? 55 : 52,
                 bgcolor: "#f3f4f6",
                 borderRadius: "7.5px",
                 display: "flex",
@@ -716,32 +724,31 @@ export default function Sidebar({ open, close }) {
               <DarkModeIcon sx={{ fontSize: 24, color: "#545963" }} />
             </Box>
           </Tooltip>
-          {open && (
-            <Tooltip title="Settings" placement="top">
-              <Box
-                sx={{
-                  flex: 1,
-                  height: 55,
-                  bgcolor: "#f3f4f6",
-                  borderRadius: "7.5px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  "&:hover": { bgcolor: "#ecedf0" },
-                }}
-              >
-                <SettingsIcon sx={{ fontSize: 24, color: "#545963" }} />
-              </Box>
-            </Tooltip>
-          )}
+          <Tooltip title="Settings" placement="top">
+            <Box
+              sx={{
+                flex: open ? 1 : undefined,
+                width: open ? undefined : "100%",
+                height: open ? 55 : 52,
+                bgcolor: "#f3f4f6",
+                borderRadius: "7.5px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                "&:hover": { bgcolor: "#ecedf0" },
+              }}
+            >
+              <SettingsIcon sx={{ fontSize: 24, color: "#545963" }} />
+            </Box>
+          </Tooltip>
           <Tooltip title="Logout" placement="top">
             <Box
               onClick={handleLogout}
               sx={{
                 flex: open ? 1 : undefined,
                 width: open ? undefined : "100%",
-                height: 55,
+                height: open ? 55 : 52,
                 bgcolor: "rgba(255,3,11,0.15)",
                 borderRadius: "7.5px",
                 display: "flex",
