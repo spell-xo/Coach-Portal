@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Typography, Badge } from "@mui/material";
+import { Box, Badge } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import ChatIcon from "@mui/icons-material/Chat";
@@ -34,14 +34,16 @@ const MobileBottomBar = () => {
           bottom: 0,
           left: 0,
           right: 0,
-          height: BOTTOM_BAR_HEIGHT,
+          height: 66,
           bgcolor: "#fff",
           borderTop: "1px solid #ebebeb",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "space-around",
+          alignItems: "stretch",
+          justifyContent: "space-between",
           zIndex: 1300,
-          px: "8px",
+          px: "10px",
+          py: "10px",
+          gap: "5px",
         }}
       >
         {isClubContext && (
@@ -49,23 +51,29 @@ const MobileBottomBar = () => {
             onClick={() => setExpandOpen(true)}
             sx={{
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
-              gap: "2px",
+              justifyContent: "center",
               cursor: "pointer",
               flex: 1,
+              bgcolor: "#24FF00",
+              borderRadius: "7.5px",
             }}
           >
-            <AddIcon sx={{ fontSize: 22, color: "#24FF00" }} />
-            <Typography sx={{ fontSize: 10, fontWeight: 600, color: "#24FF00", lineHeight: 1, whiteSpace: "nowrap" }}>
-              Expand Academy
-            </Typography>
+            <AddIcon sx={{ fontSize: 22, color: "#000" }} />
           </Box>
         )}
 
         <Box
           onClick={() => setNotifOpen(true)}
-          sx={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", flex: 1 }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            flex: 1,
+            bgcolor: "#F3F4F6",
+            borderRadius: "7.5px",
+          }}
         >
           <Badge badgeContent={3} sx={{ "& .MuiBadge-badge": { bgcolor: "#24FF00", color: "#000", fontSize: 9, minWidth: 14, height: 14 } }}>
             <NotificationsIcon sx={{ fontSize: 22, color: "#545963" }} />
@@ -74,7 +82,15 @@ const MobileBottomBar = () => {
 
         <Box
           onClick={() => setMessagesOpen(true)}
-          sx={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", flex: 1 }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            flex: 1,
+            bgcolor: "#F3F4F6",
+            borderRadius: "7.5px",
+          }}
         >
           <Badge badgeContent={3} sx={{ "& .MuiBadge-badge": { bgcolor: "#24FF00", color: "#000", fontSize: 9, minWidth: 14, height: 14 } }}>
             <ChatIcon sx={{ fontSize: 22, color: "#545963" }} />
@@ -83,7 +99,15 @@ const MobileBottomBar = () => {
 
         <Box
           onClick={() => setSwitcherOpen(true)}
-          sx={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", flex: 1 }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            flex: 1,
+            bgcolor: "#F3F4F6",
+            borderRadius: "7.5px",
+          }}
         >
           {clubBadgeUrl ? (
             <Box component="img" src={clubBadgeUrl} alt="" sx={{ width: 24, height: 24, borderRadius: "50%", objectFit: "cover" }} />
@@ -98,7 +122,15 @@ const MobileBottomBar = () => {
 
         <Box
           onClick={() => setNavOpen(true)}
-          sx={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", flex: 1 }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            flex: 1,
+            border: "1px solid #ebebeb",
+            borderRadius: "7.5px",
+          }}
         >
           <MenuIcon sx={{ fontSize: 22, color: "#545963" }} />
         </Box>

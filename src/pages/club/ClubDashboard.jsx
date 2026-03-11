@@ -31,7 +31,6 @@ import StarIcon from '@mui/icons-material/Star';
 import AppLayout from '../../components/AppLayout';
 import { SkeletonStatCard } from '../../components/skeletons';
 import RequireRole from '../../components/RequireRole';
-import StaffInvitationsCard from '../../components/StaffInvitationsCard';
 import ClubAIReport from '../../components/ClubAIReport';
 import { selectActiveContext } from '../../store/authSlice';
 import clubService from '../../api/clubService';
@@ -315,17 +314,16 @@ const TeamCard = ({ team, clubId, navigate, index }) => (
       <Box
         sx={{
           px: '7px',
-          pt: '7px',
-          pb: '7px',
+          py: '7px',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'space-between',
-          gap: '5px',
+          justifyContent: 'center',
+          gap: '3px',
           flex: 1,
           minWidth: 0,
         }}
       >
-        <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#fff', lineHeight: '22px' }}>
+        <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#fff', lineHeight: '16px' }}>
           Performer Of the Week
         </Typography>
         <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
@@ -411,7 +409,7 @@ const ActivityItem = ({ activity, index }) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.05 * index, duration: 0.3 }}
-      sx={{ display: 'flex', gap: '12px', alignItems: 'flex-start', py: '12px' }}
+      sx={{ display: 'flex', gap: '12px', alignItems: 'flex-start', py: '10px' }}
     >
       <Box
         sx={{
@@ -569,6 +567,11 @@ const ClubDashboard = () => {
   const clubName = activeContext?.clubName || 'Club Dashboard';
   const activeUsers = dashboardData?.stats.drills?.uniqueUsers || 0;
   const highlights = dashboardData?.highlights;
+  const filteredRecentActivity = (dashboardData?.recentActivity || []).filter((activity) => {
+    const type = String(activity?.type || '').toLowerCase();
+    const message = String(activity?.message || '').toLowerCase();
+    return !type.includes('staff') && !message.includes('staff');
+  });
 
   return (
     <AppLayout>
@@ -585,7 +588,7 @@ const ClubDashboard = () => {
             position: 'relative',
             background: heroBackgroundImage ? 'none' : HERO_DEFAULT_BG,
             borderRadius: isMobile ? 0 : '15px',
-            p: isMobile ? '16px' : '20px',
+            p: isMobile ? '15px' : '20px',
             mx: isMobile ? 0 : { xs: 1, sm: 2, md: 2 },
             mt: isMobile ? 0 : { xs: 1, sm: 2 },
             overflow: 'hidden',
@@ -728,7 +731,15 @@ const ClubDashboard = () => {
             <Box sx={{ borderTop: '1px solid rgba(255,255,255,0.15)' }} />
 
             {/* Quick Stats header + period switcher */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: isMobile ? 'stretch' : 'center',
+                flexDirection: isMobile ? 'column' : 'row',
+                gap: isMobile ? '10px' : 0,
+              }}
+            >
               <Typography sx={{ fontSize: 18, fontWeight: 600, color: '#fff', letterSpacing: '-0.08px' }}>
                 Quick Stats
               </Typography>
@@ -742,6 +753,7 @@ const ClubDashboard = () => {
                   borderRadius: '6px',
                   p: '4px',
                   gap: 0,
+                  width: isMobile ? '100%' : 'auto',
                 }}
               >
                 {PERIOD_OPTIONS.map((period) => (
@@ -749,7 +761,8 @@ const ClubDashboard = () => {
                     key={period}
                     onClick={() => setSelectedPeriod(period)}
                     sx={{
-                      px: '20px',
+                      px: isMobile ? '10px' : '20px',
+                      flex: isMobile ? 1 : undefined,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -886,9 +899,6 @@ const ClubDashboard = () => {
                 ))}
               </Box>
 
-              {/* ─── Staff Invitations ─── */}
-              <StaffInvitationsCard />
-
               {/* ─── Teams Section ─── */}
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: '20px' }}>
@@ -941,43 +951,38 @@ const ClubDashboard = () => {
 
               {/* ─── Recent Activity ─── */}
               <Box>
-                <Typography sx={{ fontSize: 18, fontWeight: 600, color: '#000', letterSpacing: '-0.08px', mb: '10px' }}>
-                  Recent Activity
-                </Typography>
-                <Grid container spacing={2}>
-                  {dashboardData?.recentActivity?.length > 0 ? (
-                    <>
-                      <Grid item xs={12} md={6}>
-                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                          {dashboardData.recentActivity
-                            .filter((_, i) => i % 2 === 0)
-                            .map((activity, idx) => (
-                              <Box key={activity.id} sx={{ borderBottom: '1px solid #ebebeb' }}>
-                                <ActivityItem activity={activity} index={idx} />
-                              </Box>
-                            ))}
+                <Box
+                  sx={{
+                    bgcolor: '#fff',
+                    border: '1px solid #ebebeb',
+                    borderRadius: '15px',
+                    p: isMobile ? '10px' : '15px',
+                  }}
+                >
+                  <Typography sx={{ fontSize: 18, fontWeight: 600, color: '#000', letterSpacing: '-0.08px', mb: '10px' }}>
+                    Recent Activity
+                  </Typography>
+                  {filteredRecentActivity.length > 0 ? (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {filteredRecentActivity.map((activity, idx) => (
+                        <Box
+                          key={activity.id}
+                          sx={{
+                            bgcolor: '#F3F4F6',
+                            borderRadius: '7.5px',
+                            px: '10px',
+                          }}
+                        >
+                          <ActivityItem activity={activity} index={idx} />
                         </Box>
-          </Grid>
-                      <Grid item xs={12} md={6}>
-                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                          {dashboardData.recentActivity
-                            .filter((_, i) => i % 2 === 1)
-                            .map((activity, idx) => (
-                              <Box key={activity.id} sx={{ borderBottom: '1px solid #ebebeb' }}>
-                                <ActivityItem activity={activity} index={idx} />
-                              </Box>
-                            ))}
-                        </Box>
-        </Grid>
-                    </>
+                      ))}
+                    </Box>
                   ) : (
-                    <Grid item xs={12}>
-                      <Box sx={{ py: 4, textAlign: 'center' }}>
-                        <Typography color="text.secondary">No recent activity to display.</Typography>
-                      </Box>
-                    </Grid>
+                    <Box sx={{ py: 4, textAlign: 'center' }}>
+                      <Typography color="text.secondary">No recent activity to display.</Typography>
+                    </Box>
                   )}
-                </Grid>
+                </Box>
               </Box>
           </>
         )}

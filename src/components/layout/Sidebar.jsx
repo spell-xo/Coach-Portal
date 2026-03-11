@@ -89,16 +89,26 @@ const NavItem = React.memo(({ item, location, navigate, isTablet, closeSidebar, 
           onClick={handleClick}
           sx={{
             minHeight: 38,
-            px: "15px",
+            px: sidebarOpen ? "15px" : "0",
             py: "7px",
             borderRadius: 0,
+            justifyContent: sidebarOpen ? "flex-start" : "center",
             bgcolor: (isItemActive || hasActiveChild) ? "#24FF00" : "transparent",
               "&:hover": {
               bgcolor: (isItemActive || hasActiveChild) ? "#24FF00" : "rgba(0,0,0,0.04)",
             },
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", width: "100%", gap: "10px", p: "5px" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: sidebarOpen ? "flex-start" : "center",
+              width: "100%",
+              gap: sidebarOpen ? "10px" : 0,
+              p: "5px",
+            }}
+          >
             <ListItemIcon
               sx={{
                   minWidth: 0,
