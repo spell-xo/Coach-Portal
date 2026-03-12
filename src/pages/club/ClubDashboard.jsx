@@ -615,8 +615,7 @@ const ClubDashboard = () => {
                   content: '""',
                   position: 'absolute',
                   inset: 0,
-                  background:
-                    'radial-gradient(ellipse at 22% 55%, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.78) 72%), linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.78) 100%)',
+                  background: 'radial-gradient(ellipse at 22% 55%, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.65) 100%)',
                 },
               }}
             />
