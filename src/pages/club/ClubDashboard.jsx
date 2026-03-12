@@ -33,6 +33,7 @@ import { SkeletonStatCard } from '../../components/skeletons';
 import ClubAIReport from '../../components/ClubAIReport';
 import { selectActiveContext } from '../../store/authSlice';
 import clubService from '../../api/clubService';
+import brandingMockService from '../../mocks/brandingMockService';
 
 // ─── Hero default background (black + green radial gradient) ───
 const HERO_DEFAULT_BG = `
@@ -58,6 +59,8 @@ const STAT_ROW_2 = [
 const PERIOD_OPTIONS = ['Weekly', 'Monthly', 'Yearly'];
 const normalizeClubPayload = (payload) =>
   payload?.data?.club || payload?.club || payload?.data || payload || {};
+const isBrandingMockMode = process.env.REACT_APP_BRANDING_MOCK_MODE === 'true';
+const brandingService = isBrandingMockMode ? brandingMockService : clubService;
 
 // ─── Demo mode mock data (used when API unavailable and REACT_APP_DEMO_MODE=true) ───
 const MOCK_DASHBOARD_DATA = {
@@ -455,6 +458,7 @@ const ClubDashboard = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [selectedPeriod, setSelectedPeriod] = useState('Weekly');
   const [clubBranding, setClubBranding] = useState(null);
+  const [clubDisplayName, setClubDisplayName] = useState('');
 
   useEffect(() => {
     loadDashboardData();
@@ -501,11 +505,13 @@ const ClubDashboard = () => {
 
       // Fetch club branding (badge + hero image)
       try {
-        const clubRes = await clubService.getClubById(clubId);
+        const clubRes = await brandingService.getClubById(clubId);
         const club = normalizeClubPayload(clubRes);
         setClubBranding(club?.settings?.branding || null);
+        setClubDisplayName(club?.name || '');
       } catch {
         setClubBranding(null);
+        setClubDisplayName('');
       }
 
       setError(null);
@@ -567,7 +573,7 @@ const ClubDashboard = () => {
 
   const heroBackgroundImage = clubBranding?.heroImageUrl || null;
   const clubBadgeUrl = clubBranding?.badgeUrl || null;
-  const clubName = activeContext?.clubName || 'Club Dashboard';
+  const clubName = clubDisplayName || activeContext?.clubName || 'Club Dashboard';
   const activeUsers = dashboardData?.stats.drills?.uniqueUsers || 0;
   const highlights = dashboardData?.highlights;
   const filteredRecentActivity = (dashboardData?.recentActivity || []).filter((activity) => {
