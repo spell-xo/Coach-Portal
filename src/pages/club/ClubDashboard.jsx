@@ -316,8 +316,8 @@ const QuickStatHighlight = ({ title, children, delay = 0, isMobile = false }) =>
 );
 
 const HighlightPlayerCard = ({ name, level, division, avatarUrl, description }) => (
-  <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: 76, justifyContent: 'space-between' }}>
-    <Box sx={{ display: 'flex', gap: '14px', alignItems: 'center', minHeight: 58 }}>
+  <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 76 }}>
+    <Box sx={{ display: 'flex', gap: '14px', alignItems: 'center', minHeight: 58, flex: 1 }}>
       <Avatar src={avatarUrl || undefined} sx={{ width: 54, height: 54, bgcolor: '#333' }}>{name?.charAt(0)}</Avatar>
       <Box>
         <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px' }}>
@@ -335,6 +335,7 @@ const HighlightPlayerCard = ({ name, level, division, avatarUrl, description }) 
           borderRadius: '73px',
           display: 'inline-flex',
           alignSelf: 'flex-start',
+          mt: 'auto',
           px: '5px',
           py: '5px',
         }}
