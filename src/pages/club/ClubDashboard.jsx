@@ -304,7 +304,8 @@ const QuickStatHighlight = ({ title, children, delay = 0, isMobile = false }) =>
       overflow: 'hidden',
       display: 'flex',
       flexDirection: 'column',
-      gap: '10px',
+      justifyContent: 'space-between',
+      minHeight: 121,
     }}
   >
     <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#d0d5dd', letterSpacing: '-0.06px', lineHeight: '22px' }}>
@@ -315,7 +316,7 @@ const QuickStatHighlight = ({ title, children, delay = 0, isMobile = false }) =>
 );
 
 const HighlightPlayerCard = ({ name, level, division, avatarUrl, description }) => (
-  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', pt: '2px' }}>
+  <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: 66, justifyContent: 'space-between' }}>
     <Box sx={{ display: 'flex', gap: '14px', alignItems: 'center', minHeight: 54 }}>
       <Avatar src={avatarUrl || undefined} sx={{ width: 54, height: 54, bgcolor: '#333' }}>{name?.charAt(0)}</Avatar>
       <Box>
@@ -998,7 +999,7 @@ const ClubDashboard = () => {
               </QuickStatHighlight>
 
               <QuickStatHighlight title="Most Attempted Drill" delay={0.4} isMobile={isMobile}>
-                <Box sx={{ position: 'relative', minHeight: 66, pr: isMobile ? '90px' : '100px', pt: '2px' }}>
+                <Box sx={{ position: 'relative', minHeight: 66, pr: isMobile ? '90px' : '100px' }}>
                   <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px', lineHeight: 1.1, maxWidth: '100%' }}>
                     {highlights?.mostAttemptedDrill?.name || '—'}
                   </Typography>
@@ -1009,10 +1010,10 @@ const ClubDashboard = () => {
                       alt="Most attempted drill"
                       sx={{
                         position: 'absolute',
-                        right: isMobile ? '-6px' : '-8px',
-                        top: isMobile ? '-12px' : '-14px',
-                        width: isMobile ? 104 : 116,
-                        height: isMobile ? 86 : 96,
+                        right: isMobile ? '-4px' : '-6px',
+                        top: isMobile ? '-10px' : '-12px',
+                        width: isMobile ? 98 : 110,
+                        height: isMobile ? 80 : 92,
                         objectFit: 'contain',
                         flexShrink: 0,
                         pointerEvents: 'none',
