@@ -61,6 +61,12 @@ const normalizeClubPayload = (payload) =>
   payload?.data?.club || payload?.club || payload?.data || payload || {};
 const isBrandingMockMode = process.env.REACT_APP_BRANDING_MOCK_MODE === 'true';
 const brandingService = isBrandingMockMode ? brandingMockService : clubService;
+const getTeamLogoUrl = (team = {}) =>
+  team.logoUrl || team.logo || team.badgeUrl || team.image || team.avatarUrl || null;
+const getTeamBackgroundUrl = (team = {}) =>
+  team.backgroundImage || team.backgroundImageUrl || team.heroImageUrl || team.bannerUrl || null;
+const getTopPerformerPhotoUrl = (topPerformer = {}) =>
+  topPerformer.photo || topPerformer.photoUrl || topPerformer.avatar || topPerformer.avatarUrl || null;
 
 // ─── Demo mode mock data (used when API unavailable and REACT_APP_DEMO_MODE=true) ───
 const MOCK_DASHBOARD_DATA = {
@@ -244,7 +250,11 @@ const TeamCard = ({ team, clubId, navigate, index }) => (
     <Box sx={{ position: 'relative', zIndex: 1, p: '15px', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <Avatar sx={{ width: 45, height: 45, bgcolor: '#333', border: '0.45px solid #ededed', boxShadow: 'inset 0 0 7px rgba(0,0,0,0.5)' }}>
+          <Avatar
+            src={team.logoUrl || undefined}
+            alt={`${team.name || 'Team'} logo`}
+            sx={{ width: 45, height: 45, bgcolor: '#333', border: '0.45px solid #ededed', boxShadow: 'inset 0 0 7px rgba(0,0,0,0.5)' }}
+          >
             {team.name?.charAt(0)}
           </Avatar>
           <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
@@ -362,8 +372,8 @@ const TeamCard = ({ team, clubId, navigate, index }) => (
           p: '7px',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          ...(team.topPerformer?.photo && {
-            backgroundImage: `linear-gradient(to bottom, transparent, rgba(0,0,0,0.75)), url(${team.topPerformer.photo})`,
+          ...((team.topPerformer?.photoUrl || team.topPerformer?.photo) && {
+            backgroundImage: `linear-gradient(to bottom, transparent, rgba(0,0,0,0.75)), url(${team.topPerformer?.photoUrl || team.topPerformer?.photo})`,
           }),
         }}
       >
@@ -497,8 +507,14 @@ const ClubDashboard = () => {
             playerCount: team.playerCount || 0,
             coachCount: team.coachCount || 1,
             status: team.status || 'Active',
-            backgroundImage: team.backgroundImage || null,
-            topPerformer: team.topPerformer || null,
+            logoUrl: getTeamLogoUrl(team),
+            backgroundImage: getTeamBackgroundUrl(team),
+            topPerformer: team.topPerformer
+              ? {
+                  ...team.topPerformer,
+                  photoUrl: getTopPerformerPhotoUrl(team.topPerformer),
+                }
+              : null,
           })) || [],
         highlights: response.data.highlights || null,
       };
