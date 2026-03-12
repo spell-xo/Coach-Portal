@@ -315,7 +315,7 @@ const QuickStatHighlight = ({ title, children, delay = 0, isMobile = false }) =>
 );
 
 const HighlightPlayerCard = ({ name, level, division, avatarUrl, description }) => (
-  <>
+  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', pt: '2px' }}>
     <Box sx={{ display: 'flex', gap: '14px', alignItems: 'center', minHeight: 54 }}>
       <Avatar src={avatarUrl || undefined} sx={{ width: 54, height: 54, bgcolor: '#333' }}>{name?.charAt(0)}</Avatar>
       <Box>
@@ -344,7 +344,7 @@ const HighlightPlayerCard = ({ name, level, division, avatarUrl, description }) 
         </Typography>
       </Box>
     )}
-  </>
+  </Box>
 );
 
 const TeamCard = ({ team, clubId, navigate, index }) => (
@@ -998,8 +998,8 @@ const ClubDashboard = () => {
               </QuickStatHighlight>
 
               <QuickStatHighlight title="Most Attempted Drill" delay={0.4} isMobile={isMobile}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 54, gap: '10px' }}>
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px', lineHeight: 1.1 }}>
+                <Box sx={{ position: 'relative', minHeight: 66, pr: isMobile ? '90px' : '100px', pt: '2px' }}>
+                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px', lineHeight: 1.1, maxWidth: '100%' }}>
                     {highlights?.mostAttemptedDrill?.name || '—'}
                   </Typography>
                   {highlights?.mostAttemptedDrill?.imageUrl && (
@@ -1008,10 +1008,14 @@ const ClubDashboard = () => {
                       src={highlights.mostAttemptedDrill.imageUrl}
                       alt="Most attempted drill"
                       sx={{
-                        width: 92,
-                        height: 72,
+                        position: 'absolute',
+                        right: isMobile ? '-6px' : '-8px',
+                        top: isMobile ? '-12px' : '-14px',
+                        width: isMobile ? 104 : 116,
+                        height: isMobile ? 86 : 96,
                         objectFit: 'contain',
                         flexShrink: 0,
+                        pointerEvents: 'none',
                       }}
                     />
                   )}
