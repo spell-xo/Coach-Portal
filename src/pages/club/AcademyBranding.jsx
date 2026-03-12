@@ -426,13 +426,14 @@ const AcademyBranding = () => {
 
   return (
     <AppLayout>
-      <Box sx={{ p: isMobile ? "15px" : "20px", maxWidth: isMobile ? "100%" : 980 }}>
+      <Box sx={{ p: isMobile ? "15px" : "20px", width: "100%" }}>
         <Box
           sx={{
             bgcolor: "#fff",
             border: "1px solid #ebebeb",
             borderRadius: "15px",
             p: isMobile ? "15px" : "20px",
+            width: "100%",
           }}
         >
           {content}
