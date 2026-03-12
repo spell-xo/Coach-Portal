@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import CheckIcon from "@mui/icons-material/Check";
 import AppLayout from "../../components/AppLayout";
 import { selectActiveContext } from "../../store/authSlice";
 import clubService from "../../api/clubService";
@@ -25,6 +26,13 @@ const LOGO_ACCEPTED = ".png,.svg";
 const HERO_ACCEPTED = ".jpg,.jpeg,.png";
 const LOGO_ACCEPTED_TYPES = ["image/png", "image/svg+xml"];
 const HERO_ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+const READY_BG_VARIANTS = [
+  { id: "variant-1", url: "/branding-ready-bg/variant-1.png" },
+  { id: "variant-2", url: "/branding-ready-bg/variant-2.png" },
+  { id: "variant-3", url: "/branding-ready-bg/variant-3.png" },
+  { id: "variant-4", url: "/branding-ready-bg/variant-4.png" },
+  { id: "variant-5", url: "/branding-ready-bg/variant-5.png" },
+];
 
 const normalizeClubPayload = (payload) =>
   payload?.data?.club || payload?.club || payload?.data || payload || {};
@@ -39,6 +47,13 @@ const getUploadedImageUrl = (uploadResponse) => {
     uploadResponse?.url ||
     null
   );
+};
+
+const imageUrlToFile = async (url, fileName = "ready-bg.png") => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Failed to load selected ready background");
+  const blob = await response.blob();
+  return new File([blob], fileName, { type: blob.type || "image/png" });
 };
 
 const isBrandingMockMode = process.env.REACT_APP_BRANDING_MOCK_MODE === "true";
@@ -63,6 +78,7 @@ const AcademyBranding = () => {
   const [newBadgePreview, setNewBadgePreview] = useState(null);
   const [newHeroFile, setNewHeroFile] = useState(null);
   const [newHeroPreview, setNewHeroPreview] = useState(null);
+  const [selectedReadyHeroVariant, setSelectedReadyHeroVariant] = useState(null);
 
   const badgeInputRef = useRef(null);
   const heroInputRef = useRef(null);
@@ -95,7 +111,10 @@ const AcademyBranding = () => {
   }, [newBadgePreview, newHeroPreview]);
 
   const hasChanges =
-    clubName !== originalName || newBadgeFile !== null || newHeroFile !== null;
+    clubName !== originalName ||
+    newBadgeFile !== null ||
+    newHeroFile !== null ||
+    selectedReadyHeroVariant !== null;
 
   const handleBadgeChange = useCallback((e) => {
     const file = e.target.files?.[0];
@@ -126,6 +145,7 @@ const AcademyBranding = () => {
     }
     setNewHeroFile(file);
     setNewHeroPreview(URL.createObjectURL(file));
+    setSelectedReadyHeroVariant(null);
     setError(null);
   }, []);
 
@@ -143,8 +163,17 @@ const AcademyBranding = () => {
     }
     setNewHeroFile(file);
     setNewHeroPreview(URL.createObjectURL(file));
+    setSelectedReadyHeroVariant(null);
     setError(null);
   }, []);
+
+  const handleReadyVariantSelect = (url) => {
+    if (newHeroPreview) URL.revokeObjectURL(newHeroPreview);
+    setNewHeroFile(null);
+    setNewHeroPreview(null);
+    setSelectedReadyHeroVariant(url);
+    setError(null);
+  };
 
   const handleSave = async () => {
     try {
@@ -168,13 +197,22 @@ const AcademyBranding = () => {
         }
       }
 
-      if (newHeroFile) {
+      const selectedHeroFile =
+        newHeroFile ||
+        (selectedReadyHeroVariant
+          ? await imageUrlToFile(
+              selectedReadyHeroVariant,
+              `ready-bg-${selectedReadyHeroVariant.split("/").pop() || "variant"}.png`
+            )
+          : null);
+
+      if (selectedHeroFile) {
         const heroTypes = ["hero", "header", "banner", "home"];
         let heroUploadError = null;
         let heroUploaded = false;
         for (const type of heroTypes) {
           try {
-            const heroResult = await brandingService.uploadClubImage(clubId, newHeroFile, type);
+            const heroResult = await brandingService.uploadClubImage(clubId, selectedHeroFile, type);
             const heroUrl = getUploadedImageUrl(heroResult);
             if (heroUrl) setCurrentHeroUrl(heroUrl);
             heroUploaded = true;
@@ -192,6 +230,7 @@ const AcademyBranding = () => {
       setNewBadgePreview(null);
       setNewHeroFile(null);
       setNewHeroPreview(null);
+      setSelectedReadyHeroVariant(null);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to save changes");
@@ -215,7 +254,7 @@ const AcademyBranding = () => {
   }
 
   const badgeDisplay = newBadgePreview || currentBadgeUrl;
-  const heroDisplay = newHeroPreview || currentHeroUrl;
+  const heroDisplay = newHeroPreview || selectedReadyHeroVariant || currentHeroUrl;
 
   const content = (
     <Box sx={{ display: "flex", flexDirection: "column", gap: isMobile ? "20px" : "28px", pb: isMobile ? "110px" : 0 }}>
@@ -398,6 +437,67 @@ const AcademyBranding = () => {
               onChange={handleHeroChange}
               style={{ display: "none" }}
             />
+          </Box>
+        </Box>
+        <Box sx={{ mt: "12px" }}>
+          <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#667085", mb: "8px" }}>
+            Ready BG Variants
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              gap: "10px",
+              overflowX: "auto",
+              pb: "4px",
+              "&::-webkit-scrollbar": { height: 4 },
+              "&::-webkit-scrollbar-thumb": { backgroundColor: "#d0d5dd", borderRadius: 999 },
+            }}
+          >
+            {READY_BG_VARIANTS.map((variant) => {
+              const selected = selectedReadyHeroVariant === variant.url;
+              return (
+                <Box
+                  key={variant.id}
+                  onClick={() => handleReadyVariantSelect(variant.url)}
+                  sx={{
+                    position: "relative",
+                    width: isMobile ? 142 : 168,
+                    height: isMobile ? 80 : 96,
+                    borderRadius: "8px",
+                    border: selected ? "2px solid #1CC900" : "1px solid #EAECF0",
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                    backgroundImage: `url(${variant.url})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                >
+                  {selected && (
+                    <>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          inset: 0,
+                          bgcolor: "rgba(36,255,0,0.15)",
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          inset: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <CheckIcon sx={{ fontSize: 28, color: "#24FF00" }} />
+                      </Box>
+                    </>
+                  )}
+                </Box>
+              );
+            })}
           </Box>
         </Box>
       </Box>
