@@ -305,7 +305,7 @@ const QuickStatHighlight = ({ title, children, delay = 0, isMobile = false }) =>
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',
-      minHeight: 121,
+      minHeight: 132,
     }}
   >
     <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#d0d5dd', letterSpacing: '-0.06px', lineHeight: '22px' }}>
@@ -316,8 +316,8 @@ const QuickStatHighlight = ({ title, children, delay = 0, isMobile = false }) =>
 );
 
 const HighlightPlayerCard = ({ name, level, division, avatarUrl, description }) => (
-  <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: 66, justifyContent: 'space-between' }}>
-    <Box sx={{ display: 'flex', gap: '14px', alignItems: 'center', minHeight: 54 }}>
+  <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: 76, justifyContent: 'space-between' }}>
+    <Box sx={{ display: 'flex', gap: '14px', alignItems: 'center', minHeight: 58 }}>
       <Avatar src={avatarUrl || undefined} sx={{ width: 54, height: 54, bgcolor: '#333' }}>{name?.charAt(0)}</Avatar>
       <Box>
         <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px' }}>
@@ -999,7 +999,7 @@ const ClubDashboard = () => {
               </QuickStatHighlight>
 
               <QuickStatHighlight title="Most Attempted Drill" delay={0.4} isMobile={isMobile}>
-                <Box sx={{ position: 'relative', minHeight: 66, pr: isMobile ? '90px' : '100px' }}>
+                <Box sx={{ position: 'relative', minHeight: 76, pr: isMobile ? '102px' : '126px', display: 'flex', alignItems: 'center' }}>
                   <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px', lineHeight: 1.1, maxWidth: '100%' }}>
                     {highlights?.mostAttemptedDrill?.name || '—'}
                   </Typography>
@@ -1010,15 +1010,15 @@ const ClubDashboard = () => {
                       alt="Most attempted drill"
                       sx={{
                         position: 'absolute',
-                        right: isMobile ? '-24px' : '-18px',
-                        top: isMobile ? '-24px' : '-28px',
-                        width: isMobile ? 150 : 178,
-                        height: isMobile ? 118 : 140,
-                        objectFit: 'cover',
+                        right: isMobile ? '-30px' : '-28px',
+                        top: isMobile ? '-26px' : '-32px',
+                        width: isMobile ? 170 : 210,
+                        height: isMobile ? 124 : 156,
+                        objectFit: 'contain',
                         flexShrink: 0,
                         pointerEvents: 'none',
-                        mixBlendMode: 'multiply',
-                        opacity: 0.98,
+                        mixBlendMode: 'screen',
+                        opacity: 0.92,
                       }}
                     />
                   )}
