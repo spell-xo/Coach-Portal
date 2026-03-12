@@ -17,6 +17,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import AppLayout from "../../components/AppLayout";
 import { selectActiveContext } from "../../store/authSlice";
 import clubService from "../../api/clubService";
+import brandingMockService from "../../mocks/brandingMockService";
 
 const LOGO_MAX_SIZE = 2 * 1024 * 1024;
 const HERO_MAX_SIZE = 5 * 1024 * 1024;
@@ -39,6 +40,9 @@ const getUploadedImageUrl = (uploadResponse) => {
     null
   );
 };
+
+const isBrandingMockMode = process.env.REACT_APP_BRANDING_MOCK_MODE === "true";
+const brandingService = isBrandingMockMode ? brandingMockService : clubService;
 
 const AcademyBranding = () => {
   const { clubId } = useParams();
@@ -66,7 +70,7 @@ const AcademyBranding = () => {
   const fetchClubData = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await clubService.getClubById(clubId);
+      const res = await brandingService.getClubById(clubId);
       const club = normalizeClubPayload(res);
       setClubName(club.name || "");
       setOriginalName(club.name || "");
@@ -149,16 +153,16 @@ const AcademyBranding = () => {
       setSuccess(false);
 
       if (clubName !== originalName) {
-        await clubService.updateClubProfile(clubId, { name: clubName });
+        await brandingService.updateClubProfile(clubId, { name: clubName });
       }
 
       if (newBadgeFile) {
         try {
-          const badgeResult = await clubService.replaceClubBadge(clubId, newBadgeFile);
+          const badgeResult = await brandingService.replaceClubBadge(clubId, newBadgeFile);
           const badgeUrl = getUploadedImageUrl(badgeResult);
           if (badgeUrl) setCurrentBadgeUrl(badgeUrl);
         } catch {
-          const badgeFallbackResult = await clubService.uploadClubImage(clubId, newBadgeFile, "badge");
+          const badgeFallbackResult = await brandingService.uploadClubImage(clubId, newBadgeFile, "badge");
           const badgeUrl = getUploadedImageUrl(badgeFallbackResult);
           if (badgeUrl) setCurrentBadgeUrl(badgeUrl);
         }
@@ -170,7 +174,7 @@ const AcademyBranding = () => {
         let heroUploaded = false;
         for (const type of heroTypes) {
           try {
-            const heroResult = await clubService.uploadClubImage(clubId, newHeroFile, type);
+            const heroResult = await brandingService.uploadClubImage(clubId, newHeroFile, type);
             const heroUrl = getUploadedImageUrl(heroResult);
             if (heroUrl) setCurrentHeroUrl(heroUrl);
             heroUploaded = true;
