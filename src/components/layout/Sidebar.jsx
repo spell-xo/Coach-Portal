@@ -40,7 +40,6 @@ import {
   selectIsPlatformEngineering,
   selectCurrentUser,
   selectAvailableContexts,
-  selectHasMultipleContexts,
   setActiveContext,
 } from "../../store/authSlice";
 import authService from "../../api/authService";
@@ -185,6 +184,12 @@ const formatRole = (role) => {
     .join(" ");
 };
 
+const formatSidebarRole = (role, contextType) => {
+  // Figma copy expects academy dashboard users to be labeled as Head Coach.
+  if (contextType === "club" || role === "club_manager") return "Head Coach";
+  return formatRole(role);
+};
+
 export default function Sidebar({ open, close }) {
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
@@ -196,7 +201,6 @@ export default function Sidebar({ open, close }) {
   const isPlatformEngineering = useSelector(selectIsPlatformEngineering);
   const user = useSelector(selectCurrentUser);
   const availableContexts = useSelector(selectAvailableContexts);
-  const hasMultipleContexts = useSelector(selectHasMultipleContexts);
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -220,6 +224,36 @@ export default function Sidebar({ open, close }) {
     () => getMenuItems(isClubContext, activeClubRole, isPlatformAdmin, primaryRole, activeContext, isPlatformEngineering),
     [isClubContext, activeClubRole, isPlatformAdmin, primaryRole, activeContext, isPlatformEngineering]
   );
+
+  const switcherContexts = useMemo(() => {
+    const source = Array.isArray(availableContexts) ? [...availableContexts] : [];
+    const normalized = [];
+    const seen = new Set();
+
+    const addContext = (ctx) => {
+      if (!ctx?.type) return;
+      const key = `${ctx.type}:${ctx.clubId || "personal"}:${ctx.role || ""}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      normalized.push(ctx);
+    };
+
+    source.forEach(addContext);
+    addContext(activeContext);
+
+    const hasPersonal = normalized.some((ctx) => ctx.type === "personal");
+    if (!hasPersonal) {
+      addContext({
+        type: "personal",
+        role: primaryRole || "coach",
+        clubId: null,
+      });
+    }
+
+    return normalized;
+  }, [availableContexts, activeContext, primaryRole]);
+
+  const hasSwitcherOptions = switcherContexts.length > 0;
 
   useEffect(() => {
     const fetchClubBadge = async () => {
@@ -547,7 +581,7 @@ export default function Sidebar({ open, close }) {
         {/* Academy Switcher Card */}
         <Box sx={{ px: "12px", pb: "8px" }}>
           <Box
-            onClick={(e) => hasMultipleContexts && setSwitcherAnchor(e.currentTarget)}
+            onClick={(e) => hasSwitcherOptions && setSwitcherAnchor(e.currentTarget)}
             sx={{
               bgcolor: "#f3f4f6",
               borderRadius: "7.5px",
@@ -555,8 +589,8 @@ export default function Sidebar({ open, close }) {
               display: "flex",
               alignItems: "center",
               justifyContent: open ? "space-between" : "center",
-              cursor: hasMultipleContexts ? "pointer" : "default",
-              "&:hover": hasMultipleContexts ? { bgcolor: "#ecedf0" } : {},
+              cursor: hasSwitcherOptions ? "pointer" : "default",
+              "&:hover": hasSwitcherOptions ? { bgcolor: "#ecedf0" } : {},
             }}
           >
             <Box sx={{ display: "flex", alignItems: open ? "flex-start" : "center", flexDirection: open ? "column" : "row", gap: "5px" }}>
@@ -601,12 +635,12 @@ export default function Sidebar({ open, close }) {
                     {activeContext?.clubName || user?.name || "AIM Portal"}
                   </Typography>
                   <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#545963", letterSpacing: "-0.04px" }}>
-                    {activeContext?.role ? formatRole(activeContext.role) : primaryRole || "Coach"}
+                    {activeContext?.role ? formatSidebarRole(activeContext.role, activeContext?.type) : formatSidebarRole(primaryRole || "coach", activeContext?.type)}
                   </Typography>
                 </Box>
               )}
             </Box>
-            {open && hasMultipleContexts && (
+            {open && hasSwitcherOptions && (
               <ExpandMoreIcon sx={{ fontSize: 20, color: "#545963" }} />
             )}
           </Box>
@@ -636,7 +670,7 @@ export default function Sidebar({ open, close }) {
               <CircularProgress size={20} sx={{ color: "#24FF00" }} />
             </Box>
           )}
-          {availableContexts?.map((context) => {
+          {switcherContexts?.map((context) => {
             const active = isActiveCtx(context);
             return (
               <Box
@@ -694,7 +728,7 @@ export default function Sidebar({ open, close }) {
                   </Typography>
                   {context.type === "club" && context.role && (
                     <Typography sx={{ fontSize: 11, color: "#545963" }}>
-                      {formatRole(context.role)}
+                      {formatSidebarRole(context.role, context.type)}
                     </Typography>
                   )}
                 </Box>
