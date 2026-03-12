@@ -67,6 +67,24 @@ const getTeamBackgroundUrl = (team = {}) =>
   team.backgroundImage || team.backgroundImageUrl || team.heroImageUrl || team.bannerUrl || null;
 const getTopPerformerPhotoUrl = (topPerformer = {}) =>
   topPerformer.photo || topPerformer.photoUrl || topPerformer.avatar || topPerformer.avatarUrl || null;
+const normalizeLevelText = (level) => {
+  const fallback = 'Level 1';
+  if (level === null || level === undefined) return fallback;
+  if (typeof level === 'number' && Number.isFinite(level)) {
+    return `Level ${Math.min(5, Math.max(1, Math.round(level)))}`;
+  }
+  const str = String(level).trim();
+  const matchedNumber = str.match(/\d+/);
+  if (!matchedNumber) return str || fallback;
+  const parsed = Number(matchedNumber[0]);
+  if (!Number.isFinite(parsed)) return str || fallback;
+  const clamped = Math.min(5, Math.max(1, Math.round(parsed)));
+  return `Level ${clamped}`;
+};
+const getPlayerSubtext = (level, division) => {
+  const normalizedLevel = normalizeLevelText(level);
+  return division ? `${normalizedLevel}, ${division}` : normalizedLevel;
+};
 
 // ─── Demo mode mock data (used when API unavailable and REACT_APP_DEMO_MODE=true) ───
 const MOCK_DASHBOARD_DATA = {
@@ -180,9 +198,23 @@ const MOCK_DASHBOARD_DATA = {
     },
   ],
   highlights: {
-    topPerformer: { name: 'Marcus Johnson', level: 'Level 15' },
-    mostImproved: { name: 'Sophie Chen', level: 'Level 8' },
-    mostAttemptedDrill: { name: 'Ball Mastery', count: 342 },
+    topPerformer: {
+      name: 'Marcus Johnson',
+      level: 'Level 4',
+      division: 'Gold',
+      avatarUrl: '/quick-stats/top-performer-avatar.png',
+    },
+    mostImproved: {
+      name: 'Sophie Chen',
+      level: 'Level 3',
+      division: 'Silver',
+      avatarUrl: '/quick-stats/most-improved-avatar.png',
+    },
+    mostAttemptedDrill: {
+      name: '7 CONE WEAVE',
+      count: 342,
+      imageUrl: '/quick-stats/most-attempted-drill.png',
+    },
   },
 };
 
@@ -250,16 +282,16 @@ const QuickStatHighlight = ({ title, children, delay = 0, isMobile = false }) =>
   </Box>
 );
 
-const HighlightPlayerCard = ({ name, level, description }) => (
+const HighlightPlayerCard = ({ name, level, division, avatarUrl, description }) => (
   <>
-    <Box sx={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-      <Avatar sx={{ width: 54, height: 54, bgcolor: '#333' }}>{name?.charAt(0)}</Avatar>
+    <Box sx={{ display: 'flex', gap: '14px', alignItems: 'center', minHeight: 54 }}>
+      <Avatar src={avatarUrl || undefined} sx={{ width: 54, height: 54, bgcolor: '#333' }}>{name?.charAt(0)}</Avatar>
       <Box>
         <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px' }}>
           {name || '—'}
         </Typography>
         <Typography sx={{ fontSize: 12, fontWeight: 500, color: '#d0d5dd' }}>
-          {level || '—'}
+          {getPlayerSubtext(level, division)}
         </Typography>
       </Box>
     </Box>
@@ -909,6 +941,8 @@ const ClubDashboard = () => {
                 <HighlightPlayerCard
                   name={highlights?.topPerformer?.name}
                   level={highlights?.topPerformer?.level}
+                  division={highlights?.topPerformer?.division}
+                  avatarUrl={highlights?.topPerformer?.avatarUrl}
                   description={
                     highlights?.topPerformer
                       ? { highlight: 'Highest performance consistency', rest: 'across completed drills.' }
@@ -921,6 +955,8 @@ const ClubDashboard = () => {
                 <HighlightPlayerCard
                   name={highlights?.mostImproved?.name}
                   level={highlights?.mostImproved?.level}
+                  division={highlights?.mostImproved?.division}
+                  avatarUrl={highlights?.mostImproved?.avatarUrl}
                   description={
                     highlights?.mostImproved
                       ? { highlight: 'Strongest performance growth', rest: 'across all tracked metrics.' }
@@ -930,9 +966,24 @@ const ClubDashboard = () => {
               </QuickStatHighlight>
 
               <QuickStatHighlight title="Most Attempted Drill" delay={0.4} isMobile={isMobile}>
-                <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px' }}>
-                  {highlights?.mostAttemptedDrill?.name || '—'}
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 54, gap: '10px' }}>
+                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px', lineHeight: 1.1 }}>
+                    {highlights?.mostAttemptedDrill?.name || '—'}
                   </Typography>
+                  {highlights?.mostAttemptedDrill?.imageUrl && (
+                    <Box
+                      component="img"
+                      src={highlights.mostAttemptedDrill.imageUrl}
+                      alt="Most attempted drill"
+                      sx={{
+                        width: 92,
+                        height: 72,
+                        objectFit: 'contain',
+                        flexShrink: 0,
+                      }}
+                    />
+                  )}
+                </Box>
                 {highlights?.mostAttemptedDrill && (
                   <Box
                     sx={{
