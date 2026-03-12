@@ -6,7 +6,7 @@ import BottomBar from "./BottomBar";
 import MobileBottomBar from "./layout/MobileBottomBar";
 import "../assets/styles/global.scss";
 
-const AppLayout = ({ children }) => {
+const AppLayout = ({ children, hideMobileBottomBar = false }) => {
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
   const isMobile = useMediaQuery("(max-width:767px)");
@@ -51,7 +51,7 @@ const AppLayout = ({ children }) => {
         {children}
       </Box>
 
-      {isMobile ? <MobileBottomBar /> : <BottomBar />}
+      {isMobile ? (hideMobileBottomBar ? null : <MobileBottomBar />) : <BottomBar />}
     </Box>
   );
 };

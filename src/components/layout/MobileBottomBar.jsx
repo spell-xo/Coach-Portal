@@ -25,10 +25,11 @@ const MobileBottomBar = () => {
   const activeContext = useSelector(selectActiveContext);
 
   const clubBadgeUrl = null;
+  const hasOverlayOpen = expandOpen || navOpen || notifOpen || messagesOpen || switcherOpen;
 
   return (
     <>
-      <Box
+      {!hasOverlayOpen && <Box
         sx={{
           position: "fixed",
           bottom: 0,
@@ -134,7 +135,7 @@ const MobileBottomBar = () => {
         >
           <MenuIcon sx={{ fontSize: 22, color: "#545963" }} />
         </Box>
-      </Box>
+      </Box>}
 
       <ExpandAcademyModal open={expandOpen} onClose={() => setExpandOpen(false)} />
       <MobileNav open={navOpen} onClose={() => setNavOpen(false)} />

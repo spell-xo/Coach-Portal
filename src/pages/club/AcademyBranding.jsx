@@ -13,7 +13,6 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import AppLayout from "../../components/AppLayout";
 import { selectActiveContext } from "../../store/authSlice";
@@ -215,15 +214,23 @@ const AcademyBranding = () => {
   const heroDisplay = newHeroPreview || currentHeroUrl;
 
   const content = (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: isMobile ? "20px" : "28px" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: isMobile ? "20px" : "28px", pb: isMobile ? "110px" : 0 }}>
       {/* Header */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        {isMobile ? (
-          <IconButton onClick={handleCancel} sx={{ p: 0 }}>
-            <ArrowBackIcon sx={{ fontSize: 24 }} />
-          </IconButton>
-        ) : null}
-        <Box>
+      <Box
+        sx={
+          isMobile
+            ? {
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "10px",
+                bgcolor: "#F3F4F6",
+                borderRadius: "7px",
+                p: "10px",
+              }
+            : { display: "flex", alignItems: "center", gap: "12px" }
+        }
+      >
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography sx={{ fontSize: isMobile ? 20 : 24, fontWeight: 600, color: "#000" }}>
             Academy Branding
           </Typography>
@@ -232,7 +239,16 @@ const AcademyBranding = () => {
           </Typography>
         </Box>
         {isMobile && (
-          <IconButton onClick={handleCancel} sx={{ p: 0, ml: "auto" }}>
+          <IconButton
+            onClick={handleCancel}
+            sx={{
+              p: "6px",
+              borderRadius: "7px",
+              bgcolor: "#F3F4F6",
+              border: "1px solid #EAECF0",
+              ml: "auto",
+            }}
+          >
             <CloseIcon sx={{ fontSize: 24 }} />
           </IconButton>
         )}
@@ -384,7 +400,7 @@ const AcademyBranding = () => {
       </Box>
 
       {/* Action Buttons */}
-      <Box sx={{ display: "flex", gap: "10px", mt: "8px" }}>
+      {!isMobile && <Box sx={{ display: "flex", gap: "10px", mt: "8px" }}>
         <Button
           onClick={handleSave}
           disabled={!hasChanges || saving}
@@ -420,24 +436,82 @@ const AcademyBranding = () => {
         >
           Cancel
         </Button>
-      </Box>
+      </Box>}
+    </Box>
+  );
+
+  const mobileBottomActions = (
+    <Box
+      sx={{
+        position: "fixed",
+        left: 0,
+        right: 0,
+        bottom: 0,
+        bgcolor: "#fff",
+        borderTop: "1px solid #ebebeb",
+        p: "12px",
+        display: "flex",
+        gap: "10px",
+        zIndex: 1301,
+      }}
+    >
+      <Button
+        onClick={handleSave}
+        disabled={!hasChanges || saving}
+        sx={{
+          flex: 1,
+          bgcolor: "#24FF00",
+          opacity: hasChanges ? 1 : 0.5,
+          color: "#000",
+          fontWeight: 600,
+          fontSize: 16,
+          textTransform: "none",
+          borderRadius: "7px",
+          py: "12px",
+          "&:hover": { bgcolor: "#1ecc00" },
+          "&.Mui-disabled": { bgcolor: "#24FF00", opacity: 0.5, color: "#000" },
+        }}
+      >
+        {saving ? <CircularProgress size={20} sx={{ color: "#000" }} /> : "Save Changes"}
+      </Button>
+      <Button
+        onClick={handleCancel}
+        sx={{
+          flex: 1,
+          bgcolor: "#f3f4f6",
+          color: "#000",
+          fontWeight: 600,
+          fontSize: 16,
+          textTransform: "none",
+          borderRadius: "7px",
+          py: "12px",
+          "&:hover": { bgcolor: "#ecedf0" },
+        }}
+      >
+        Cancel
+      </Button>
     </Box>
   );
 
   return (
-    <AppLayout>
-      <Box sx={{ p: isMobile ? "15px" : "20px", width: "100%" }}>
-        <Box
-          sx={{
-            bgcolor: "#fff",
-            border: "1px solid #ebebeb",
-            borderRadius: "15px",
-            p: isMobile ? "15px" : "20px",
-            width: "100%",
-          }}
-        >
-          {content}
-        </Box>
+    <AppLayout hideMobileBottomBar={isMobile}>
+      <Box sx={{ p: isMobile ? "15px" : "20px", width: "100%", bgcolor: "#fff", minHeight: "100%" }}>
+        {isMobile ? (
+          content
+        ) : (
+          <Box
+            sx={{
+              bgcolor: "#fff",
+              border: "1px solid #ebebeb",
+              borderRadius: "15px",
+              p: "20px",
+              width: "100%",
+            }}
+          >
+            {content}
+          </Box>
+        )}
+        {isMobile && mobileBottomActions}
       </Box>
     </AppLayout>
   );

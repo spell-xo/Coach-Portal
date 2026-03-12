@@ -72,24 +72,31 @@ const MobileMessages = ({ open, onClose }) => {
       PaperProps={{ sx: { bgcolor: "#fff", display: "flex", flexDirection: "column" } }}
     >
       {/* Header */}
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: "16px", py: "16px", borderBottom: "1px solid #ebebeb" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <Typography sx={{ fontSize: 20, fontWeight: 600, color: "#000" }}>
+      <Box sx={{ px: "16px", pt: "16px", pb: "10px" }}>
+        <Box sx={{ display: "flex", alignItems: "flex-start", gap: "10px", bgcolor: "#F3F4F6", borderRadius: "7px", p: "10px" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: "8px", flex: 1, minWidth: 0 }}>
+            <Box>
+              <Typography sx={{ fontSize: 20, fontWeight: 600, color: "#000" }}>
             Messages
-          </Typography>
-          {totalUnread > 0 && (
-            <Box sx={{ bgcolor: "#24FF00", borderRadius: "10px", px: "8px", py: "2px" }}>
-              <Typography sx={{ fontSize: 12, fontWeight: 600, color: "#000" }}>{totalUnread}</Typography>
+              </Typography>
+              <Typography sx={{ fontSize: 13, color: "#545963", mt: "2px" }}>
+                Team and coaching chats
+              </Typography>
             </Box>
-          )}
+            {totalUnread > 0 && (
+              <Box sx={{ bgcolor: "#24FF00", borderRadius: "10px", px: "8px", py: "2px", alignSelf: "flex-start", mt: "2px" }}>
+                <Typography sx={{ fontSize: 12, fontWeight: 600, color: "#000" }}>{totalUnread}</Typography>
+              </Box>
+            )}
+          </Box>
+          <IconButton onClick={onClose} sx={{ p: "6px", borderRadius: "7px", bgcolor: "#F3F4F6", border: "1px solid #EAECF0" }}>
+            <CloseIcon sx={{ fontSize: 24 }} />
+          </IconButton>
         </Box>
-        <IconButton onClick={onClose} sx={{ p: 0 }}>
-          <CloseIcon sx={{ fontSize: 24 }} />
-        </IconButton>
       </Box>
 
       {/* Chat List */}
-      <Box sx={{ flex: 1, overflowY: "auto" }}>
+      <Box sx={{ flex: 1, overflowY: "auto", px: "16px", pb: "96px" }}>
         <List disablePadding>
           {mockChats.map((chat) => (
             <ListItem
@@ -97,7 +104,7 @@ const MobileMessages = ({ open, onClose }) => {
               onClick={() => handleChatClick(chat)}
               sx={{
                 py: "12px",
-                px: "16px",
+                px: "0px",
                 cursor: "pointer",
                 borderBottom: "1px solid #f3f4f6",
                 "&:hover": { bgcolor: "rgba(0,0,0,0.02)" },
@@ -156,7 +163,7 @@ const MobileMessages = ({ open, onClose }) => {
       </Box>
 
       {/* Search chats */}
-      <Box sx={{ p: "12px", borderTop: "1px solid #ebebeb" }}>
+      <Box sx={{ p: "12px", borderTop: "1px solid #ebebeb", position: "fixed", left: 0, right: 0, bottom: 0, bgcolor: "#fff", zIndex: 1301 }}>
         <Box
           sx={{
             bgcolor: "#f3f4f6",

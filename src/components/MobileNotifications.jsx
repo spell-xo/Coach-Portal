@@ -94,17 +94,24 @@ const MobileNotifications = ({ open, onClose }) => {
       PaperProps={{ sx: { bgcolor: "#fff", display: "flex", flexDirection: "column" } }}
     >
       {/* Header */}
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: "16px", py: "16px", borderBottom: "1px solid #ebebeb" }}>
-        <Typography sx={{ fontSize: 20, fontWeight: 600, color: "#000" }}>
-          Notifications
-        </Typography>
-        <IconButton onClick={onClose} sx={{ p: 0 }}>
-          <CloseIcon sx={{ fontSize: 24 }} />
-        </IconButton>
+      <Box sx={{ px: "16px", pt: "16px", pb: "10px" }}>
+        <Box sx={{ display: "flex", alignItems: "flex-start", gap: "10px", bgcolor: "#F3F4F6", borderRadius: "7px", p: "10px" }}>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography sx={{ fontSize: 20, fontWeight: 600, color: "#000" }}>
+              Notifications
+            </Typography>
+            <Typography sx={{ fontSize: 13, color: "#545963", mt: "2px" }}>
+              Alerts and important updates
+            </Typography>
+          </Box>
+          <IconButton onClick={onClose} sx={{ p: "6px", borderRadius: "7px", bgcolor: "#F3F4F6", border: "1px solid #EAECF0" }}>
+            <CloseIcon sx={{ fontSize: 24 }} />
+          </IconButton>
+        </Box>
       </Box>
 
       {/* Notification List */}
-      <Box sx={{ flex: 1, overflowY: "auto" }}>
+      <Box sx={{ flex: 1, overflowY: "auto", px: "16px", pb: "88px" }}>
         {notifications.length === 0 ? (
           <Box sx={{ p: 4, textAlign: "center" }}>
             <NotificationsNoneIcon sx={{ fontSize: 64, color: "#ccc", mb: 2 }} />
@@ -118,7 +125,7 @@ const MobileNotifications = ({ open, onClose }) => {
                   onClick={() => handleClick(notification)}
                   sx={{
                     py: "12px",
-                    px: "16px",
+                    px: "0px",
                     bgcolor: notification.read ? "transparent" : "rgba(36,255,0,0.05)",
                     cursor: "pointer",
                     "&:hover": { bgcolor: "rgba(0,0,0,0.02)" },
@@ -165,11 +172,11 @@ const MobileNotifications = ({ open, onClose }) => {
       </Box>
 
       {/* Footer */}
-      {unreadCount > 0 && (
-        <Box sx={{ p: "12px", borderTop: "1px solid #ebebeb" }}>
+      <Box sx={{ p: "12px", borderTop: "1px solid #ebebeb", position: "fixed", left: 0, right: 0, bottom: 0, bgcolor: "#fff", zIndex: 1301 }}>
           <Button
             fullWidth
             onClick={markAllAsRead}
+            disabled={unreadCount === 0}
             sx={{
               bgcolor: "#f3f4f6",
               color: "#000",
@@ -184,7 +191,6 @@ const MobileNotifications = ({ open, onClose }) => {
             Mark all as read
           </Button>
         </Box>
-      )}
     </Dialog>
   );
 };
