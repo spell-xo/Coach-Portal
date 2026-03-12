@@ -190,6 +190,9 @@ const formatSidebarRole = (role, contextType) => {
   return formatRole(role);
 };
 
+const normalizeClubPayload = (payload) =>
+  payload?.data?.club || payload?.club || payload?.data || payload || {};
+
 export default function Sidebar({ open, close }) {
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
@@ -260,7 +263,8 @@ export default function Sidebar({ open, close }) {
       if (isClubContext && activeContext?.clubId) {
         try {
           const response = await clubService.getClubById(activeContext.clubId);
-          setClubBadgeUrl(response.data?.settings?.branding?.badgeUrl || null);
+          const club = normalizeClubPayload(response);
+          setClubBadgeUrl(club?.settings?.branding?.badgeUrl || null);
         } catch (error) {
           setClubBadgeUrl(null);
         }

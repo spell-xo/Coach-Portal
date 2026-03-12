@@ -56,6 +56,8 @@ const STAT_ROW_2 = [
 ];
 
 const PERIOD_OPTIONS = ['Weekly', 'Monthly', 'Yearly'];
+const normalizeClubPayload = (payload) =>
+  payload?.data?.club || payload?.club || payload?.data || payload || {};
 
 // ─── Demo mode mock data (used when API unavailable and REACT_APP_DEMO_MODE=true) ───
 const MOCK_DASHBOARD_DATA = {
@@ -499,7 +501,8 @@ const ClubDashboard = () => {
       // Fetch club branding (badge + hero image)
       try {
         const clubRes = await clubService.getClubById(clubId);
-        setClubBranding(clubRes.data?.settings?.branding || null);
+        const club = normalizeClubPayload(clubRes);
+        setClubBranding(club?.settings?.branding || null);
       } catch {
         setClubBranding(null);
       }
@@ -606,7 +609,8 @@ const ClubDashboard = () => {
                   content: '""',
                   position: 'absolute',
                   inset: 0,
-                  background: 'linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 100%)',
+                  background:
+                    'radial-gradient(ellipse at 22% 55%, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.78) 72%), linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.78) 100%)',
                 },
               }}
             />

@@ -23,6 +23,23 @@ const LOGO_MAX_SIZE = 2 * 1024 * 1024;
 const HERO_MAX_SIZE = 5 * 1024 * 1024;
 const LOGO_ACCEPTED = ".png,.svg";
 const HERO_ACCEPTED = ".jpg,.jpeg,.png";
+const LOGO_ACCEPTED_TYPES = ["image/png", "image/svg+xml"];
+const HERO_ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+
+const normalizeClubPayload = (payload) =>
+  payload?.data?.club || payload?.club || payload?.data || payload || {};
+
+const getUploadedImageUrl = (uploadResponse) => {
+  return (
+    uploadResponse?.data?.preview?.large ||
+    uploadResponse?.data?.variants?.large ||
+    uploadResponse?.data?.url ||
+    uploadResponse?.preview?.large ||
+    uploadResponse?.variants?.large ||
+    uploadResponse?.url ||
+    null
+  );
+};
 
 const AcademyBranding = () => {
   const { clubId } = useParams();
@@ -47,24 +64,32 @@ const AcademyBranding = () => {
   const badgeInputRef = useRef(null);
   const heroInputRef = useRef(null);
 
-  useEffect(() => {
-    const fetchClubData = async () => {
-      try {
-        setLoading(true);
-        const res = await clubService.getClubById(clubId);
-        const club = res.data;
-        setClubName(club.name || "");
-        setOriginalName(club.name || "");
-        setCurrentBadgeUrl(club.settings?.branding?.badgeUrl || null);
-        setCurrentHeroUrl(club.settings?.branding?.heroImageUrl || null);
-      } catch (err) {
-        setError("Failed to load club data");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchClubData();
+  const fetchClubData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await clubService.getClubById(clubId);
+      const club = normalizeClubPayload(res);
+      setClubName(club.name || "");
+      setOriginalName(club.name || "");
+      setCurrentBadgeUrl(club.settings?.branding?.badgeUrl || null);
+      setCurrentHeroUrl(club.settings?.branding?.heroImageUrl || null);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to load club data");
+    } finally {
+      setLoading(false);
+    }
   }, [clubId]);
+
+  useEffect(() => {
+    fetchClubData();
+  }, [fetchClubData]);
+
+  useEffect(() => {
+    return () => {
+      if (newBadgePreview) URL.revokeObjectURL(newBadgePreview);
+      if (newHeroPreview) URL.revokeObjectURL(newHeroPreview);
+    };
+  }, [newBadgePreview, newHeroPreview]);
 
   const hasChanges =
     clubName !== originalName || newBadgeFile !== null || newHeroFile !== null;
@@ -72,6 +97,10 @@ const AcademyBranding = () => {
   const handleBadgeChange = useCallback((e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!LOGO_ACCEPTED_TYPES.includes(file.type)) {
+      setError("Logo file must be PNG or SVG");
+      return;
+    }
     if (file.size > LOGO_MAX_SIZE) {
       setError("Logo file must be under 2MB");
       return;
@@ -84,6 +113,10 @@ const AcademyBranding = () => {
   const handleHeroChange = useCallback((e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!HERO_ACCEPTED_TYPES.includes(file.type)) {
+      setError("Header background must be JPG or PNG");
+      return;
+    }
     if (file.size > HERO_MAX_SIZE) {
       setError("Header background must be under 5MB");
       return;
@@ -97,7 +130,7 @@ const AcademyBranding = () => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (!file) return;
-    if (!file.type.match(/^image\/(jpeg|jpg|png)$/)) {
+    if (!HERO_ACCEPTED_TYPES.includes(file.type)) {
       setError("Header background must be JPG or PNG");
       return;
     }
@@ -114,23 +147,48 @@ const AcademyBranding = () => {
     try {
       setSaving(true);
       setError(null);
+      setSuccess(false);
 
       if (clubName !== originalName) {
         await clubService.updateClubProfile(clubId, { name: clubName });
       }
 
       if (newBadgeFile) {
-        await clubService.replaceClubBadge(clubId, newBadgeFile);
+        try {
+          const badgeResult = await clubService.replaceClubBadge(clubId, newBadgeFile);
+          const badgeUrl = getUploadedImageUrl(badgeResult);
+          if (badgeUrl) setCurrentBadgeUrl(badgeUrl);
+        } catch {
+          const badgeFallbackResult = await clubService.uploadClubImage(clubId, newBadgeFile, "badge");
+          const badgeUrl = getUploadedImageUrl(badgeFallbackResult);
+          if (badgeUrl) setCurrentBadgeUrl(badgeUrl);
+        }
       }
 
       if (newHeroFile) {
-        await clubService.uploadClubImage(clubId, newHeroFile, "hero");
+        const heroTypes = ["hero", "header", "banner", "home"];
+        let heroUploadError = null;
+        let heroUploaded = false;
+        for (const type of heroTypes) {
+          try {
+            const heroResult = await clubService.uploadClubImage(clubId, newHeroFile, type);
+            const heroUrl = getUploadedImageUrl(heroResult);
+            if (heroUrl) setCurrentHeroUrl(heroUrl);
+            heroUploaded = true;
+            break;
+          } catch (err) {
+            heroUploadError = err;
+          }
+        }
+        if (!heroUploaded && heroUploadError) throw heroUploadError;
       }
 
+      await fetchClubData();
       setSuccess(true);
-      setOriginalName(clubName);
       setNewBadgeFile(null);
+      setNewBadgePreview(null);
       setNewHeroFile(null);
+      setNewHeroPreview(null);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to save changes");
@@ -253,21 +311,23 @@ const AcademyBranding = () => {
         <Typography sx={{ fontSize: 18, fontWeight: 500, color: "#667085", mb: "12px" }}>
           Title Background
         </Typography>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          {heroDisplay && (
+        <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: "12px", alignItems: "stretch" }}>
+          {heroDisplay ? (
             <Box
               component="img"
               src={heroDisplay}
               alt="Header background"
               sx={{
-                width: isMobile ? "100%" : 378,
-                height: isMobile ? 140 : 160,
+                width: isMobile ? "100%" : 320,
+                height: isMobile ? 140 : "auto",
+                minHeight: isMobile ? 140 : 170,
                 objectFit: "cover",
-                borderRadius: "5px",
+                borderRadius: "7.5px",
                 border: "1px solid #ebebeb",
+                flexShrink: 0,
               }}
             />
-          )}
+          ) : null}
           <Box
             onDrop={handleHeroDrop}
             onDragOver={(e) => e.preventDefault()}
@@ -275,14 +335,16 @@ const AcademyBranding = () => {
             sx={{
               border: "1.5px dashed #98A2B3",
               borderRadius: "7.5px",
-              bgcolor: "#f3f4f6",
-              p: "24px",
+              bgcolor: "#F3F4F6",
+              p: "20px",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              justifyContent: "center",
               gap: "8px",
               cursor: "pointer",
-              width: isMobile ? "100%" : 378,
+              minHeight: 170,
+              flex: 1,
               "&:hover": { borderColor: "#545963", bgcolor: "#ecedf0" },
             }}
           >
@@ -364,8 +426,17 @@ const AcademyBranding = () => {
 
   return (
     <AppLayout>
-      <Box sx={{ p: isMobile ? "16px" : "24px", maxWidth: isMobile ? "100%" : 700 }}>
-        {content}
+      <Box sx={{ p: isMobile ? "15px" : "20px", maxWidth: isMobile ? "100%" : 980 }}>
+        <Box
+          sx={{
+            bgcolor: "#fff",
+            border: "1px solid #ebebeb",
+            borderRadius: "15px",
+            p: isMobile ? "15px" : "20px",
+          }}
+        >
+          {content}
+        </Box>
       </Box>
     </AppLayout>
   );
