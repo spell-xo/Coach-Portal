@@ -1010,13 +1010,15 @@ const ClubDashboard = () => {
                       alt="Most attempted drill"
                       sx={{
                         position: 'absolute',
-                        right: isMobile ? '-4px' : '-6px',
-                        top: isMobile ? '-10px' : '-12px',
-                        width: isMobile ? 98 : 110,
-                        height: isMobile ? 80 : 92,
-                        objectFit: 'contain',
+                        right: isMobile ? '-24px' : '-18px',
+                        top: isMobile ? '-24px' : '-28px',
+                        width: isMobile ? 150 : 178,
+                        height: isMobile ? 118 : 140,
+                        objectFit: 'cover',
                         flexShrink: 0,
                         pointerEvents: 'none',
+                        mixBlendMode: 'multiply',
+                        opacity: 0.98,
                       }}
                     />
                   )}
