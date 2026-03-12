@@ -465,8 +465,10 @@ const ClubDashboard = () => {
   }, [clubId]);
 
   const loadDashboardData = async () => {
+    setLoading(true);
+
+    // Flow A: dashboard stats/content data
     try {
-      setLoading(true);
       const response = await clubService.getDashboard(clubId);
 
       const transformedData = {
@@ -490,9 +492,9 @@ const ClubDashboard = () => {
         ],
         teams:
           response.data.teams?.slice(0, 5).map((team) => ({
-          id: team._id,
-          name: team.name,
-          playerCount: team.playerCount || 0,
+            id: team._id,
+            name: team.name,
+            playerCount: team.playerCount || 0,
             coachCount: team.coachCount || 1,
             status: team.status || 'Active',
             backgroundImage: team.backgroundImage || null,
@@ -502,29 +504,26 @@ const ClubDashboard = () => {
       };
 
       setDashboardData(transformedData);
-
-      // Fetch club branding (badge + hero image)
-      try {
-        const clubRes = await brandingService.getClubById(clubId);
-        const club = normalizeClubPayload(clubRes);
-        setClubBranding(club?.settings?.branding || null);
-        setClubDisplayName(club?.name || '');
-      } catch {
-        setClubBranding(null);
-        setClubDisplayName('');
-      }
-
       setError(null);
     } catch (err) {
       console.error('Error loading dashboard:', err);
-      // Demo mode: use mock data when API fails
       if (process.env.REACT_APP_DEMO_MODE === 'true') {
         setDashboardData(MOCK_DASHBOARD_DATA);
-        setClubBranding(null);
         setError(null);
       } else {
         setError(err.response?.data?.message || 'Failed to load dashboard data');
       }
+    }
+
+    // Flow B: branding data (independent from stats result)
+    try {
+      const clubRes = await brandingService.getClubById(clubId);
+      const club = normalizeClubPayload(clubRes);
+      setClubBranding(club?.settings?.branding || null);
+      setClubDisplayName(club?.name || '');
+    } catch {
+      setClubBranding(null);
+      setClubDisplayName('');
     } finally {
       setLoading(false);
     }
