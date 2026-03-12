@@ -133,15 +133,16 @@ const StatCard = ({ label, value, icon, delay = 0 }) => (
   </Box>
 );
 
-const QuickStatHighlight = ({ title, children, delay = 0 }) => (
+const QuickStatHighlight = ({ title, children, delay = 0, isMobile = false }) => (
   <Box
     component={motion.div}
     initial={{ opacity: 0, y: 12 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay, duration: 0.4 }}
     sx={{
-      flex: '1 1 0',
-      minWidth: 0,
+      flex: isMobile ? '0 0 355px' : '1 1 0',
+      width: isMobile ? 355 : 'auto',
+      minWidth: isMobile ? 355 : 0,
       backdropFilter: 'blur(10px)',
       bgcolor: 'rgba(243,244,246,0.25)',
       border: '1px solid #777',
@@ -799,12 +800,12 @@ const ClubDashboard = () => {
                 overflowX: 'auto',
                 pb: 1,
                 // Mobile: fixed-width cards (carousel), not fill mode.
-                '& > *': { width: '320px', minWidth: '320px', flex: '0 0 auto' },
+                '& > *': { width: '355px', minWidth: '355px', flex: '0 0 auto' },
                 '&::-webkit-scrollbar': { height: 4 },
                 '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(255,255,255,0.3)', borderRadius: 2 },
               }),
             }}>
-              <QuickStatHighlight title="Top Performer" delay={0.2}>
+              <QuickStatHighlight title="Top Performer" delay={0.2} isMobile={isMobile}>
                 <HighlightPlayerCard
                   name={highlights?.topPerformer?.name}
                   level={highlights?.topPerformer?.level}
@@ -816,7 +817,7 @@ const ClubDashboard = () => {
                 />
               </QuickStatHighlight>
 
-              <QuickStatHighlight title="Most Improved Player" delay={0.3}>
+              <QuickStatHighlight title="Most Improved Player" delay={0.3} isMobile={isMobile}>
                 <HighlightPlayerCard
                   name={highlights?.mostImproved?.name}
                   level={highlights?.mostImproved?.level}
@@ -828,7 +829,7 @@ const ClubDashboard = () => {
                 />
               </QuickStatHighlight>
 
-              <QuickStatHighlight title="Most Attempted Drill" delay={0.4}>
+              <QuickStatHighlight title="Most Attempted Drill" delay={0.4} isMobile={isMobile}>
                 <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px' }}>
                   {highlights?.mostAttemptedDrill?.name || '—'}
                   </Typography>

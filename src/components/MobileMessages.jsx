@@ -72,28 +72,26 @@ const MobileMessages = ({ open, onClose }) => {
       PaperProps={{ sx: { bgcolor: "#fff", display: "flex", flexDirection: "column" } }}
     >
       {/* Header */}
-      <Box sx={{ px: "16px", pt: "16px", pb: "10px" }}>
-        <Box sx={{ display: "flex", alignItems: "flex-start", gap: "10px", bgcolor: "#F3F4F6", borderRadius: "7px", p: "10px" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: "8px", flex: 1, minWidth: 0 }}>
-            <Box>
-              <Typography sx={{ fontSize: 20, fontWeight: 600, color: "#000" }}>
-            Messages
-              </Typography>
-              <Typography sx={{ fontSize: 13, color: "#545963", mt: "2px" }}>
-                Team and coaching chats
-              </Typography>
-            </Box>
-            {totalUnread > 0 && (
-              <Box sx={{ bgcolor: "#24FF00", borderRadius: "10px", px: "8px", py: "2px", alignSelf: "flex-start", mt: "2px" }}>
-                <Typography sx={{ fontSize: 12, fontWeight: 600, color: "#000" }}>{totalUnread}</Typography>
-              </Box>
-            )}
+      <Box sx={{ display: "flex", alignItems: "flex-start", gap: "10px", px: "16px", py: "16px", borderBottom: "1px solid #EBEBEB" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "8px", flex: 1, minWidth: 0 }}>
+          <Box>
+            <Typography sx={{ fontSize: 20, fontWeight: 600, color: "#000" }}>
+              Messages
+            </Typography>
+            <Typography sx={{ fontSize: 13, color: "#545963", mt: "2px" }}>
+              Team and coaching chats
+            </Typography>
           </Box>
-          <IconButton onClick={onClose} sx={{ p: "6px", borderRadius: "7px", bgcolor: "#F3F4F6", border: "1px solid #EAECF0" }}>
-            <CloseIcon sx={{ fontSize: 24 }} />
-          </IconButton>
+          {totalUnread > 0 && (
+            <Box sx={{ bgcolor: "#24FF00", borderRadius: "10px", px: "8px", py: "2px", alignSelf: "flex-start", mt: "2px" }}>
+              <Typography sx={{ fontSize: 12, fontWeight: 600, color: "#000" }}>{totalUnread}</Typography>
+            </Box>
+          )}
         </Box>
-      </Box>
+        <IconButton onClick={onClose} sx={{ p: "6px", borderRadius: "7px", bgcolor: "#F3F4F6", border: "1px solid #EAECF0" }}>
+          <CloseIcon sx={{ fontSize: 24 }} />
+        </IconButton>
+        </Box>
 
       {/* Chat List */}
       <Box sx={{ flex: 1, overflowY: "auto", px: "16px", pb: "96px" }}>

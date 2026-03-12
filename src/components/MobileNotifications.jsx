@@ -94,20 +94,18 @@ const MobileNotifications = ({ open, onClose }) => {
       PaperProps={{ sx: { bgcolor: "#fff", display: "flex", flexDirection: "column" } }}
     >
       {/* Header */}
-      <Box sx={{ px: "16px", pt: "16px", pb: "10px" }}>
-        <Box sx={{ display: "flex", alignItems: "flex-start", gap: "10px", bgcolor: "#F3F4F6", borderRadius: "7px", p: "10px" }}>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography sx={{ fontSize: 20, fontWeight: 600, color: "#000" }}>
-              Notifications
-            </Typography>
-            <Typography sx={{ fontSize: 13, color: "#545963", mt: "2px" }}>
-              Alerts and important updates
-            </Typography>
-          </Box>
-          <IconButton onClick={onClose} sx={{ p: "6px", borderRadius: "7px", bgcolor: "#F3F4F6", border: "1px solid #EAECF0" }}>
-            <CloseIcon sx={{ fontSize: 24 }} />
-          </IconButton>
+      <Box sx={{ display: "flex", alignItems: "flex-start", gap: "10px", px: "16px", py: "16px", borderBottom: "1px solid #EBEBEB" }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography sx={{ fontSize: 20, fontWeight: 600, color: "#000" }}>
+            Notifications
+          </Typography>
+          <Typography sx={{ fontSize: 13, color: "#545963", mt: "2px" }}>
+            Alerts and important updates
+          </Typography>
         </Box>
+        <IconButton onClick={onClose} sx={{ p: "6px", borderRadius: "7px", bgcolor: "#F3F4F6", border: "1px solid #EAECF0" }}>
+          <CloseIcon sx={{ fontSize: 24 }} />
+        </IconButton>
       </Box>
 
       {/* Notification List */}

@@ -223,9 +223,8 @@ const AcademyBranding = () => {
                 display: "flex",
                 alignItems: "flex-start",
                 gap: "10px",
-                bgcolor: "#F3F4F6",
-                borderRadius: "7px",
-                p: "10px",
+                borderBottom: "1px solid #EBEBEB",
+                pb: "12px",
               }
             : { display: "flex", alignItems: "center", gap: "12px" }
         }

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Container, Card, CardContent, Typography, TextField, Button, CircularProgress, Alert, MenuItem, FormControl, InputLabel, Select, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Box, Container, Card, CardContent, Typography, TextField, Button, CircularProgress, Alert, MenuItem, FormControl, InputLabel, Select, ToggleButton, ToggleButtonGroup, useMediaQuery, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CloseIcon from "@mui/icons-material/Close";
 import AppLayout from "../../components/AppLayout";
 import clubService from "../../api/clubService";
 
@@ -49,6 +50,7 @@ const teamColours = [
 const CreateTeam = () => {
   const { clubId } = useParams();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery("(max-width:767px)");
   const [loading, setLoading] = useState(false);
   const [loadingCoaches, setLoadingCoaches] = useState(true);
   const [error, setError] = useState(null);
@@ -129,190 +131,278 @@ const CreateTeam = () => {
     navigate(-1);
   };
 
-  return (
-    <AppLayout>
-      <Container
-        maxWidth="md"
-        sx={{ mt: 4, mb: 4 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={handleCancel}
-          sx={{ mb: 2 }}>
-          Back to Club
-        </Button>
+  const formContent = (
+    <Box
+      id="create-team-form"
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{ mt: isMobile ? 0 : 3, pb: isMobile ? "98px" : 0 }}>
+      <TextField
+        fullWidth
+        label="Team Name"
+        name="name"
+        value={formData.name}
+        onChange={handleChange}
+        required
+        margin="normal"
+        placeholder="e.g., U16 Boys, Girls Academy, Seniors"
+      />
 
-        <Card>
-          <CardContent>
-            <Typography
-              variant="h5"
-              component="h1"
-              gutterBottom>
-              Create New Team
-            </Typography>
-            <Typography
-              variant="body2"
-              color="textSecondary"
-              paragraph>
-              Create a new team for your club. You can assign a head coach now or later.
-            </Typography>
+      <Box sx={{ mt: 2, mb: 1 }}>
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+          Age Group Type
+        </Typography>
+        <ToggleButtonGroup
+          value={ageGroupMode}
+          exclusive
+          onChange={(e, newMode) => {
+            if (newMode !== null) {
+              setAgeGroupMode(newMode);
+              setFormData((prev) => ({ ...prev, ageGroup: "" }));
+            }
+          }}
+          size="small"
+          fullWidth
+        >
+          <ToggleButton value="traditional">Age Group (U6-U21)</ToggleButton>
+          <ToggleButton value="birthYear">Birth Year</ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
 
-            {error && (
-              <Alert
-                severity="error"
-                sx={{ mb: 2 }}>
-                {error}
-              </Alert>
-            )}
+      <FormControl
+        fullWidth
+        margin="normal"
+        required>
+        <InputLabel>{ageGroupMode === "traditional" ? "Age Group" : "Birth Year"}</InputLabel>
+        <Select
+          name="ageGroup"
+          value={formData.ageGroup}
+          onChange={handleChange}
+          label={ageGroupMode === "traditional" ? "Age Group" : "Birth Year"}>
+          {ageGroupMode === "traditional"
+            ? ageGroups.map((group) => (
+                <MenuItem key={group.value} value={group.value}>
+                  {group.label}
+                </MenuItem>
+              ))
+            : birthYears.map((year) => (
+                <MenuItem key={year.value} value={year.value}>
+                  {year.label}
+                </MenuItem>
+              ))}
+        </Select>
+      </FormControl>
 
+      <FormControl
+        fullWidth
+        margin="normal">
+        <InputLabel>Head Coach (Optional)</InputLabel>
+        <Select
+          name="headCoachId"
+          value={formData.headCoachId}
+          onChange={handleChange}
+          label="Head Coach (Optional)"
+          disabled={loadingCoaches}>
+          <MenuItem value="">
+            <em>None - Assign later</em>
+          </MenuItem>
+          {coaches.map((coach) => (
+            <MenuItem
+              key={coach._id}
+              value={coach._id}>
+              {coach.name} ({coach.role})
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <Box sx={{ mt: 2, mb: 1 }}>
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+          Team Colour (Optional)
+        </Typography>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+          {teamColours.map((colour) => (
             <Box
-              component="form"
-              onSubmit={handleSubmit}
-              sx={{ mt: 3 }}>
-              <TextField
-                fullWidth
-                label="Team Name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                margin="normal"
-                placeholder="e.g., U16 Boys, Girls Academy, Seniors"
-              />
+              key={colour.value}
+              onClick={() => setFormData((prev) => ({
+                ...prev,
+                colour: prev.colour === colour.value ? "" : colour.value
+              }))}
+              sx={{
+                width: 40,
+                height: 40,
+                backgroundColor: colour.hex,
+                borderRadius: 1,
+                cursor: "pointer",
+                border: formData.colour === colour.value ? "3px solid #000" : "2px solid transparent",
+                boxShadow: formData.colour === colour.value ? "0 0 0 2px #fff, 0 0 0 4px #000" : "none",
+                transition: "all 0.2s",
+                "&:hover": {
+                  transform: "scale(1.1)",
+                },
+              }}
+              title={colour.label}
+            />
+          ))}
+        </Box>
+        {formData.colour && (
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+            Selected: {teamColours.find(c => c.value === formData.colour)?.label}
+          </Typography>
+        )}
+      </Box>
 
-              <Box sx={{ mt: 2, mb: 1 }}>
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-                  Age Group Type
-                </Typography>
-                <ToggleButtonGroup
-                  value={ageGroupMode}
-                  exclusive
-                  onChange={(e, newMode) => {
-                    if (newMode !== null) {
-                      setAgeGroupMode(newMode);
-                      setFormData((prev) => ({ ...prev, ageGroup: "" }));
-                    }
-                  }}
-                  size="small"
-                  fullWidth
-                >
-                  <ToggleButton value="traditional">Age Group (U6-U21)</ToggleButton>
-                  <ToggleButton value="birthYear">Birth Year</ToggleButton>
-                </ToggleButtonGroup>
-              </Box>
+      <TextField
+        fullWidth
+        label="Description"
+        name="description"
+        value={formData.description}
+        onChange={handleChange}
+        margin="normal"
+        multiline
+        rows={3}
+        placeholder="Optional team description..."
+      />
 
-              <FormControl
-                fullWidth
-                margin="normal"
-                required>
-                <InputLabel>{ageGroupMode === "traditional" ? "Age Group" : "Birth Year"}</InputLabel>
-                <Select
-                  name="ageGroup"
-                  value={formData.ageGroup}
-                  onChange={handleChange}
-                  label={ageGroupMode === "traditional" ? "Age Group" : "Birth Year"}>
-                  {ageGroupMode === "traditional"
-                    ? ageGroups.map((group) => (
-                        <MenuItem key={group.value} value={group.value}>
-                          {group.label}
-                        </MenuItem>
-                      ))
-                    : birthYears.map((year) => (
-                        <MenuItem key={year.value} value={year.value}>
-                          {year.label}
-                        </MenuItem>
-                      ))}
-                </Select>
-              </FormControl>
+      {!isMobile && (
+        <Box sx={{ mt: 3, display: "flex", gap: 2, justifyContent: "flex-end" }}>
+          <Button
+            variant="outlined"
+            onClick={handleCancel}
+            disabled={loading}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={loading || !formData.name.trim()}>
+            {loading ? <CircularProgress size={24} /> : "Create Team"}
+          </Button>
+        </Box>
+      )}
+    </Box>
+  );
 
-              <FormControl
-                fullWidth
-                margin="normal">
-                <InputLabel>Head Coach (Optional)</InputLabel>
-                <Select
-                  name="headCoachId"
-                  value={formData.headCoachId}
-                  onChange={handleChange}
-                  label="Head Coach (Optional)"
-                  disabled={loadingCoaches}>
-                  <MenuItem value="">
-                    <em>None - Assign later</em>
-                  </MenuItem>
-                  {coaches.map((coach) => (
-                    <MenuItem
-                      key={coach._id}
-                      value={coach._id}>
-                      {coach.name} ({coach.role})
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+  const mobileBottomActions = (
+    <Box
+      sx={{
+        position: "fixed",
+        left: 0,
+        right: 0,
+        bottom: 0,
+        bgcolor: "#fff",
+        borderTop: "1px solid #ebebeb",
+        p: "12px",
+        display: "flex",
+        gap: "10px",
+        zIndex: 1301,
+      }}
+    >
+      <Button
+        onClick={handleCancel}
+        disabled={loading}
+        sx={{
+          flex: 1,
+          bgcolor: "#f3f4f6",
+          color: "#000",
+          fontWeight: 600,
+          fontSize: 16,
+          textTransform: "none",
+          borderRadius: "7px",
+          py: "12px",
+          "&:hover": { bgcolor: "#ecedf0" },
+        }}
+      >
+        Cancel
+      </Button>
+      <Button
+        type="submit"
+        form="create-team-form"
+        disabled={loading || !formData.name.trim()}
+        sx={{
+          flex: 1,
+          bgcolor: "#24FF00",
+          color: "#000",
+          fontWeight: 600,
+          fontSize: 16,
+          textTransform: "none",
+          borderRadius: "7px",
+          py: "12px",
+          "&:hover": { bgcolor: "#1ecc00" },
+          "&.Mui-disabled": { bgcolor: "#24FF00", opacity: 0.5, color: "#000" },
+        }}
+      >
+        {loading ? <CircularProgress size={20} sx={{ color: "#000" }} /> : "Create Team"}
+      </Button>
+    </Box>
+  );
 
-              <Box sx={{ mt: 2, mb: 1 }}>
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-                  Team Colour (Optional)
-                </Typography>
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                  {teamColours.map((colour) => (
-                    <Box
-                      key={colour.value}
-                      onClick={() => setFormData((prev) => ({
-                        ...prev,
-                        colour: prev.colour === colour.value ? "" : colour.value
-                      }))}
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        backgroundColor: colour.hex,
-                        borderRadius: 1,
-                        cursor: "pointer",
-                        border: formData.colour === colour.value ? "3px solid #000" : "2px solid transparent",
-                        boxShadow: formData.colour === colour.value ? "0 0 0 2px #fff, 0 0 0 4px #000" : "none",
-                        transition: "all 0.2s",
-                        "&:hover": {
-                          transform: "scale(1.1)",
-                        },
-                      }}
-                      title={colour.label}
-                    />
-                  ))}
-                </Box>
-                {formData.colour && (
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
-                    Selected: {teamColours.find(c => c.value === formData.colour)?.label}
-                  </Typography>
-                )}
-              </Box>
-
-              <TextField
-                fullWidth
-                label="Description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                margin="normal"
-                multiline
-                rows={3}
-                placeholder="Optional team description..."
-              />
-
-              <Box sx={{ mt: 3, display: "flex", gap: 2, justifyContent: "flex-end" }}>
-                <Button
-                  variant="outlined"
-                  onClick={handleCancel}
-                  disabled={loading}>
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={loading || !formData.name.trim()}>
-                  {loading ? <CircularProgress size={24} /> : "Create Team"}
-                </Button>
-              </Box>
+  return (
+    <AppLayout hideMobileBottomBar={isMobile}>
+      {isMobile ? (
+        <Box sx={{ p: "15px", width: "100%", bgcolor: "#fff", minHeight: "100%" }}>
+          <Box sx={{ display: "flex", alignItems: "flex-start", gap: "10px", borderBottom: "1px solid #EBEBEB", pb: "12px", mb: "12px" }}>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography sx={{ fontSize: 20, fontWeight: 600, color: "#000", lineHeight: 1.1 }}>
+                Create New Team
+              </Typography>
+              <Typography sx={{ fontSize: 13, color: "#545963", mt: "4px" }}>
+                Create a new team for your club. You can assign a head coach now or later.
+              </Typography>
             </Box>
-          </CardContent>
-        </Card>
-      </Container>
+            <IconButton onClick={handleCancel} sx={{ p: "6px", borderRadius: "7px", bgcolor: "#F3F4F6", border: "1px solid #EAECF0" }}>
+              <CloseIcon sx={{ fontSize: 24 }} />
+            </IconButton>
+          </Box>
+
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          {formContent}
+          {mobileBottomActions}
+        </Box>
+      ) : (
+        <Container
+          maxWidth="md"
+          sx={{ mt: 4, mb: 4 }}>
+          <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={handleCancel}
+            sx={{ mb: 2 }}>
+            Back to Club
+          </Button>
+
+          <Card>
+            <CardContent>
+              <Typography
+                variant="h5"
+                component="h1"
+                gutterBottom>
+                Create New Team
+              </Typography>
+              <Typography
+                variant="body2"
+                color="textSecondary"
+                paragraph>
+                Create a new team for your club. You can assign a head coach now or later.
+              </Typography>
+
+              {error && (
+                <Alert
+                  severity="error"
+                  sx={{ mb: 2 }}>
+                  {error}
+                </Alert>
+              )}
+
+              {formContent}
+            </CardContent>
+          </Card>
+        </Container>
+      )}
     </AppLayout>
   );
 };
