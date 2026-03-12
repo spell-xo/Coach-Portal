@@ -85,6 +85,38 @@ const getPlayerSubtext = (level, division) => {
   const normalizedLevel = normalizeLevelText(level);
   return division ? `${normalizedLevel}, ${division}` : normalizedLevel;
 };
+const QUICK_STATS_DEFAULTS = {
+  topPerformer: {
+    avatarUrl: '/quick-stats/top-performer-avatar.png',
+    level: 'Level 4',
+    division: 'Gold',
+  },
+  mostImproved: {
+    avatarUrl: '/quick-stats/most-improved-avatar.png',
+    level: 'Level 3',
+    division: 'Silver',
+  },
+  mostAttemptedDrill: {
+    imageUrl: '/quick-stats/most-attempted-drill.png',
+    name: '7 CONE WEAVE',
+  },
+};
+const resolveHighlights = (highlights = {}) => ({
+  topPerformer: {
+    ...QUICK_STATS_DEFAULTS.topPerformer,
+    ...(highlights?.topPerformer || {}),
+  },
+  mostImproved: {
+    ...QUICK_STATS_DEFAULTS.mostImproved,
+    ...(highlights?.mostImproved || {}),
+  },
+  mostAttemptedDrill: {
+    ...QUICK_STATS_DEFAULTS.mostAttemptedDrill,
+    ...(highlights?.mostAttemptedDrill || {}),
+    // Keep requested Figma title fixed for consistency.
+    name: '7 CONE WEAVE',
+  },
+});
 
 // ─── Demo mode mock data (used when API unavailable and REACT_APP_DEMO_MODE=true) ───
 const MOCK_DASHBOARD_DATA = {
@@ -702,7 +734,7 @@ const ClubDashboard = () => {
   const clubBadgeUrl = clubBranding?.badgeUrl || null;
   const clubName = clubDisplayName || activeContext?.clubName || 'Club Dashboard';
   const activeUsers = dashboardData?.stats.drills?.uniqueUsers || 0;
-  const highlights = dashboardData?.highlights;
+  const highlights = resolveHighlights(dashboardData?.highlights);
   const filteredRecentActivity = (dashboardData?.recentActivity || []).filter((activity) => {
     const type = String(activity?.type || '').toLowerCase();
     const message = String(activity?.message || '').toLowerCase();
