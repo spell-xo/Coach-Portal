@@ -32,6 +32,11 @@ const READY_BG_VARIANTS = [
   { id: "variant-3", url: "/branding-ready-bg/variant-3.png" },
   { id: "variant-4", url: "/branding-ready-bg/variant-4.png" },
   { id: "variant-5", url: "/branding-ready-bg/variant-5.png" },
+  { id: "variant-6", url: "/branding-ready-bg/variant-6.png" },
+  { id: "variant-7", url: "/branding-ready-bg/variant-7.png" },
+  { id: "variant-8", url: "/branding-ready-bg/variant-8.png" },
+  { id: "variant-9", url: "/branding-ready-bg/variant-9.png" },
+  { id: "variant-10", url: "/branding-ready-bg/variant-10.png" },
 ];
 
 const normalizeClubPayload = (payload) =>
@@ -461,8 +466,8 @@ const AcademyBranding = () => {
                   onClick={() => handleReadyVariantSelect(variant.url)}
                   sx={{
                     position: "relative",
-                    width: isMobile ? 142 : 168,
-                    height: isMobile ? 80 : 96,
+                    width: isMobile ? 284 : 336,
+                    height: isMobile ? 160 : 192,
                     borderRadius: "8px",
                     border: selected ? "2px solid #1CC900" : "1px solid #EAECF0",
                     overflow: "hidden",
