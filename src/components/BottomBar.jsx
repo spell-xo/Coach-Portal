@@ -42,8 +42,10 @@ const mockNotifications = [
     title: "New Team Invitation",
     message: "You have been invited to join U18 Premier Squad",
     icon: GroupIcon,
-    color: "primary",
+    bgColor: "#000000",
+    iconColor: "#FFFFFF",
     timestamp: new Date(Date.now() - 1000 * 60 * 5),
+    timeLabel: "11 minutes ago",
     read: false,
     actionUrl: "/player/invitations",
   },
@@ -53,8 +55,10 @@ const mockNotifications = [
     title: "Player Accepted Invitation",
     message: "John Smith has joined your team",
     icon: PersonAddIcon,
-    color: "success",
+    bgColor: "#2E9E45",
+    iconColor: "#FFFFFF",
     timestamp: new Date(Date.now() - 1000 * 60 * 30),
+    timeLabel: "36 minutes ago",
     read: false,
     actionUrl: "/teams",
   },
@@ -64,8 +68,10 @@ const mockNotifications = [
     title: "New Message",
     message: "Coach Mike sent you a message",
     icon: MessageIcon,
-    color: "info",
+    bgColor: "#1F9EEA",
+    iconColor: "#FFFFFF",
     timestamp: new Date(Date.now() - 1000 * 60 * 60),
+    timeLabel: "about 1 hour ago",
     read: true,
     actionUrl: "/messages",
   },
@@ -75,8 +81,10 @@ const mockNotifications = [
     title: "Staff Member Added",
     message: "Sarah Johnson was added as Assistant Coach",
     icon: SportsIcon,
-    color: "secondary",
+    bgColor: "#24FF00",
+    iconColor: "#000000",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
+    timeLabel: "about 2 hours ago",
     read: true,
     actionUrl: "/staff",
   },
@@ -239,21 +247,32 @@ const BottomBar = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         transformOrigin={{ vertical: "bottom", horizontal: "right" }}
         PaperProps={{
-          sx: { width: 400, maxHeight: 600, overflow: "hidden", mb: 1 },
+          sx: {
+            width: 400,
+            height: 620,
+            overflow: "hidden",
+            mb: 1,
+            borderRadius: "12px",
+            border: "1px solid #ebebeb",
+            display: "flex",
+            flexDirection: "column",
+          },
         }}
       >
-        <Box sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid", borderColor: "divider" }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+        <Box
+          sx={{
+            p: 2,
+            bgcolor: "#fff",
+            borderBottom: "1px solid #ebebeb",
+            flexShrink: 0,
+          }}
+        >
+          <Typography sx={{ fontSize: 18, fontWeight: 600, color: "#000" }}>
             Notifications
           </Typography>
-          {unreadCount > 0 && (
-            <Button size="small" onClick={markAllAsRead} startIcon={<CheckCircleIcon />}>
-              Mark all read
-            </Button>
-          )}
         </Box>
 
-        <Box sx={{ maxHeight: 500, overflowY: "auto" }}>
+        <Box sx={{ flex: 1, overflowY: "auto", bgcolor: "#fff" }}>
           {notifications.length === 0 ? (
             <Box sx={{ p: 4, textAlign: "center" }}>
               <NotificationsNoneIcon sx={{ fontSize: 64, color: "text.disabled", mb: 2 }} />
@@ -272,35 +291,35 @@ const BottomBar = () => {
                       button
                       onClick={() => handleNotifClick(notification)}
                       sx={{
-                        py: 2,
+                        py: "14px",
                         px: 2,
                         bgcolor: notification.read ? "transparent" : "action.hover",
                         "&:hover": { bgcolor: notification.read ? "action.hover" : "action.selected" },
                       }}
                     >
                       <ListItemAvatar>
-                        <Avatar sx={{ bgcolor: `${notification.color}.main`, width: 40, height: 40 }}>
-                          <notification.icon fontSize="small" />
+                        <Avatar sx={{ bgcolor: notification.bgColor, width: 50, height: 50 }}>
+                          <notification.icon sx={{ fontSize: 22, color: notification.iconColor }} />
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText
                         primary={
                           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <Typography variant="body2" sx={{ fontWeight: notification.read ? 400 : 600 }}>
+                            <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#000" }}>
                               {notification.title}
                             </Typography>
                             {!notification.read && (
-                              <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: "primary.main" }} />
+                              <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: "#000" }} />
                             )}
                           </Box>
                         }
                         secondary={
                           <Box>
-                            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                            <Typography sx={{ fontSize: 13, color: "#545963", mt: "2px", lineHeight: 1.35 }}>
                               {notification.message}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
-                              {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
+                            <Typography sx={{ fontSize: 11, color: "#98A2B3", mt: "4px", display: "block" }}>
+                              {notification.timeLabel || formatDistanceToNow(notification.timestamp, { addSuffix: true })}
                             </Typography>
                           </Box>
                         }
@@ -314,13 +333,34 @@ const BottomBar = () => {
           )}
         </Box>
 
-        {notifications.length > 0 && (
-          <Box sx={{ p: 1.5, borderTop: "1px solid", borderColor: "divider", textAlign: "center" }}>
-            <Button size="small" fullWidth onClick={() => setNotifAnchor(null)}>
-              View All Notifications
+        <Box
+          sx={{
+            p: "10px",
+            borderTop: "1px solid #ebebeb",
+            bgcolor: "#fff",
+            flexShrink: 0,
+          }}
+        >
+          <Box sx={{ bgcolor: "#fff", border: "1px solid #ebebeb", borderRadius: "10px", p: "8px" }}>
+            <Button
+              fullWidth
+              onClick={markAllAsRead}
+              startIcon={<CheckCircleIcon sx={{ fontSize: 20, color: "#000" }} />}
+              sx={{
+                bgcolor: "#F3F4F6",
+                color: "#000",
+                textTransform: "none",
+                fontWeight: 600,
+                fontSize: 17,
+                borderRadius: "7px",
+                py: "10px",
+                "&:hover": { bgcolor: "#EDEFF2" },
+              }}
+            >
+              Mark all read
             </Button>
           </Box>
-        )}
+        </Box>
       </Popover>
 
       {/* Messages Popover (desktop modal style) */}
@@ -333,16 +373,18 @@ const BottomBar = () => {
         PaperProps={{
           sx: {
             width: 400,
-            maxHeight: 620,
+            height: 620,
             overflow: "hidden",
             mb: 1,
             borderRadius: "12px",
             border: "1px solid #ebebeb",
+            display: "flex",
+            flexDirection: "column",
           },
         }}
       >
-        <Box sx={{ p: 2, borderBottom: "1px solid #ebebeb" }}>
-          <Typography sx={{ fontSize: 34, fontWeight: 600, color: "#000", lineHeight: 1.1 }}>
+        <Box sx={{ p: 2, borderBottom: "1px solid #ebebeb", bgcolor: "#fff", flexShrink: 0 }}>
+          <Typography sx={{ fontSize: 18, fontWeight: 600, color: "#000", lineHeight: 1.1 }}>
             Messages
           </Typography>
           <Typography sx={{ fontSize: 18, color: "#545963", mt: "2px" }}>
@@ -350,7 +392,7 @@ const BottomBar = () => {
           </Typography>
         </Box>
 
-        <Box sx={{ maxHeight: 470, overflowY: "auto" }}>
+        <Box sx={{ flex: 1, overflowY: "auto", bgcolor: "#fff" }}>
           <List disablePadding>
             {mockChats.map((chat, index) => (
               <React.Fragment key={chat.id}>
@@ -431,7 +473,7 @@ const BottomBar = () => {
           </List>
         </Box>
 
-        <Box sx={{ p: "10px", borderTop: "1px solid #ebebeb" }}>
+        <Box sx={{ p: "10px", borderTop: "1px solid #ebebeb", bgcolor: "#fff", flexShrink: 0 }}>
           <Box
             sx={{
               bgcolor: "#F3F4F6",
