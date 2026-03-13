@@ -38,6 +38,20 @@ const READY_BG_VARIANTS = [
   { id: "variant-9", url: "/branding-ready-bg/variant-9.png" },
   { id: "variant-10", url: "/branding-ready-bg/variant-10.png" },
 ];
+const READY_LOGO_VARIANTS = [
+  { id: "logo-1", url: "/branding-ready-logo/variant-1.png" },
+  { id: "logo-2", url: "/branding-ready-logo/variant-2.png" },
+  { id: "logo-3", url: "/branding-ready-logo/variant-3.png" },
+  { id: "logo-4", url: "/branding-ready-logo/variant-4.png" },
+  { id: "logo-5", url: "/branding-ready-logo/variant-5.png" },
+  { id: "logo-6", url: "/branding-ready-logo/variant-6.png" },
+  { id: "logo-7", url: "/branding-ready-logo/variant-7.png" },
+  { id: "logo-8", url: "/branding-ready-logo/variant-8.png" },
+  { id: "logo-9", url: "/branding-ready-logo/variant-9.png" },
+  { id: "logo-10", url: "/branding-ready-logo/variant-10.png" },
+  { id: "logo-11", url: "/branding-ready-logo/variant-11.png" },
+  { id: "logo-12", url: "/branding-ready-logo/variant-12.png" },
+];
 
 const normalizeClubPayload = (payload) =>
   payload?.data?.club || payload?.club || payload?.data || payload || {};
@@ -82,6 +96,7 @@ const AcademyBranding = () => {
   const [currentHeroUrl, setCurrentHeroUrl] = useState(null);
   const [newBadgeFile, setNewBadgeFile] = useState(null);
   const [newBadgePreview, setNewBadgePreview] = useState(null);
+  const [selectedReadyBadgeVariant, setSelectedReadyBadgeVariant] = useState(null);
   const [newHeroFile, setNewHeroFile] = useState(null);
   const [newHeroPreview, setNewHeroPreview] = useState(null);
   const [selectedReadyHeroVariant, setSelectedReadyHeroVariant] = useState(null);
@@ -119,6 +134,7 @@ const AcademyBranding = () => {
   const hasChanges =
     clubName !== originalName ||
     newBadgeFile !== null ||
+    selectedReadyBadgeVariant !== null ||
     newHeroFile !== null ||
     selectedReadyHeroVariant !== null;
 
@@ -135,6 +151,7 @@ const AcademyBranding = () => {
     }
     setNewBadgeFile(file);
     setNewBadgePreview(URL.createObjectURL(file));
+    setSelectedReadyBadgeVariant(null);
     setError(null);
   }, []);
 
@@ -181,6 +198,14 @@ const AcademyBranding = () => {
     setError(null);
   };
 
+  const handleReadyLogoSelect = (url) => {
+    if (newBadgePreview) URL.revokeObjectURL(newBadgePreview);
+    setNewBadgeFile(null);
+    setNewBadgePreview(null);
+    setSelectedReadyBadgeVariant(url);
+    setError(null);
+  };
+
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -191,13 +216,22 @@ const AcademyBranding = () => {
         await brandingService.updateClubProfile(clubId, { name: clubName });
       }
 
-      if (newBadgeFile) {
+      const selectedBadgeFile =
+        newBadgeFile ||
+        (selectedReadyBadgeVariant
+          ? await imageUrlToFile(
+              selectedReadyBadgeVariant,
+              `ready-logo-${selectedReadyBadgeVariant.split("/").pop() || "variant"}.png`
+            )
+          : null);
+
+      if (selectedBadgeFile) {
         try {
-          const badgeResult = await brandingService.replaceClubBadge(clubId, newBadgeFile);
+          const badgeResult = await brandingService.replaceClubBadge(clubId, selectedBadgeFile);
           const badgeUrl = getUploadedImageUrl(badgeResult);
           if (badgeUrl) setCurrentBadgeUrl(badgeUrl);
         } catch {
-          const badgeFallbackResult = await brandingService.uploadClubImage(clubId, newBadgeFile, "badge");
+          const badgeFallbackResult = await brandingService.uploadClubImage(clubId, selectedBadgeFile, "badge");
           const badgeUrl = getUploadedImageUrl(badgeFallbackResult);
           if (badgeUrl) setCurrentBadgeUrl(badgeUrl);
         }
@@ -234,6 +268,7 @@ const AcademyBranding = () => {
       setSuccess(true);
       setNewBadgeFile(null);
       setNewBadgePreview(null);
+      setSelectedReadyBadgeVariant(null);
       setNewHeroFile(null);
       setNewHeroPreview(null);
       setSelectedReadyHeroVariant(null);
@@ -259,7 +294,7 @@ const AcademyBranding = () => {
     );
   }
 
-  const badgeDisplay = newBadgePreview || currentBadgeUrl;
+  const badgeDisplay = newBadgePreview || selectedReadyBadgeVariant || currentBadgeUrl;
   const heroDisplay = newHeroPreview || selectedReadyHeroVariant || currentHeroUrl;
 
   const content = (
@@ -366,6 +401,68 @@ const AcademyBranding = () => {
               onChange={handleBadgeChange}
               style={{ display: "none" }}
             />
+          </Box>
+        </Box>
+        <Box sx={{ mt: "12px" }}>
+          <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#667085", mb: "8px" }}>
+            Ready Logo Variants
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              gap: "10px",
+              overflowX: "auto",
+              pb: "4px",
+              "&::-webkit-scrollbar": { height: 4 },
+              "&::-webkit-scrollbar-thumb": { backgroundColor: "#d0d5dd", borderRadius: 999 },
+            }}
+          >
+            {READY_LOGO_VARIANTS.map((variant) => {
+              const selected = selectedReadyBadgeVariant === variant.url;
+              return (
+                <Box
+                  key={variant.id}
+                  onClick={() => handleReadyLogoSelect(variant.url)}
+                  sx={{
+                    position: "relative",
+                    width: isPhone ? 92 : 108,
+                    height: isPhone ? 92 : 108,
+                    borderRadius: "50%",
+                    border: selected ? "2px solid #1CC900" : "1px solid #EAECF0",
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                    backgroundImage: `url(${variant.url})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    bgcolor: "#f3f4f6",
+                  }}
+                >
+                  {selected && (
+                    <>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          inset: 0,
+                          bgcolor: "rgba(36,255,0,0.15)",
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          inset: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <CheckIcon sx={{ fontSize: 28, color: "#24FF00" }} />
+                      </Box>
+                    </>
+                  )}
+                </Box>
+              );
+            })}
           </Box>
         </Box>
       </Box>
