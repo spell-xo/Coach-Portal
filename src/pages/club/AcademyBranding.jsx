@@ -362,7 +362,12 @@ const AcademyBranding = () => {
       </Box>
 
       {/* Academy Logo */}
-      <Box>
+      <Box
+        sx={{
+          pb: isHandheld ? "18px" : "14px",
+          borderBottom: "1px solid #EBEBEB",
+        }}
+      >
         <Typography sx={{ fontSize: 18, fontWeight: 500, color: "#667085", mb: "12px" }}>
           Academy Logo
         </Typography>
@@ -468,7 +473,7 @@ const AcademyBranding = () => {
       </Box>
 
       {/* Title Background */}
-      <Box>
+      <Box sx={{ pt: isHandheld ? "18px" : "14px" }}>
         <Typography sx={{ fontSize: 18, fontWeight: 500, color: "#667085", mb: "12px" }}>
           Title Background
         </Typography>
