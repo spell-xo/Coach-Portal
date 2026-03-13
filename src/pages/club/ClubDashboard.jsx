@@ -286,16 +286,16 @@ const StatCard = ({ label, value, icon, delay = 0 }) => (
   </Box>
 );
 
-const QuickStatHighlight = ({ title, children, delay = 0, isMobile = false }) => (
+const QuickStatHighlight = ({ title, children, delay = 0, isMobile = false, cardWidth = 355, cardMinWidth = 355, cardFlex = '0 0 355px' }) => (
   <Box
     component={motion.div}
     initial={{ opacity: 0, y: 12 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay, duration: 0.4 }}
     sx={{
-      flex: isMobile ? '0 0 355px' : '1 1 0',
-      width: isMobile ? 355 : 'auto',
-      minWidth: isMobile ? 355 : 0,
+      flex: isMobile ? cardFlex : '1 1 0',
+      width: isMobile ? cardWidth : 'auto',
+      minWidth: isMobile ? cardMinWidth : 0,
       backdropFilter: 'blur(10px)',
       bgcolor: 'rgba(243,244,246,0.25)',
       border: '1px solid #777',
@@ -608,6 +608,8 @@ const ClubDashboard = () => {
   const navigate = useNavigate();
   const activeContext = useSelector(selectActiveContext);
   const isMobile = useMediaQuery("(max-width:1199px)");
+  const isPhone = useMediaQuery("(max-width:767px)");
+  const isTablet = useMediaQuery("(min-width:768px) and (max-width:1199px)");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dashboardData, setDashboardData] = useState(null);
@@ -965,13 +967,22 @@ const ClubDashboard = () => {
               ...(isMobile && {
                 overflowX: 'auto',
                 pb: 1,
-                // Mobile: fixed-width cards (carousel), not fill mode.
-                '& > *': { width: '355px', minWidth: '355px', flex: '0 0 auto' },
+                // Phone keeps fixed 355px cards; tablet cards stretch to full row width.
+                '& > *': isPhone
+                  ? { width: '355px', minWidth: '355px', flex: '0 0 auto' }
+                  : { width: '100%', minWidth: '100%', flex: '0 0 100%' },
                 '&::-webkit-scrollbar': { height: 4 },
                 '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(255,255,255,0.3)', borderRadius: 2 },
               }),
             }}>
-              <QuickStatHighlight title="Top Performer" delay={0.2} isMobile={isMobile}>
+              <QuickStatHighlight
+                title="Top Performer"
+                delay={0.2}
+                isMobile={isMobile}
+                cardWidth={isTablet ? '100%' : 355}
+                cardMinWidth={isTablet ? '100%' : 355}
+                cardFlex={isTablet ? '0 0 100%' : '0 0 355px'}
+              >
                 <HighlightPlayerCard
                   name={highlights?.topPerformer?.name}
                   level={highlights?.topPerformer?.level}
@@ -985,7 +996,14 @@ const ClubDashboard = () => {
                 />
               </QuickStatHighlight>
 
-              <QuickStatHighlight title="Most Improved Player" delay={0.3} isMobile={isMobile}>
+              <QuickStatHighlight
+                title="Most Improved Player"
+                delay={0.3}
+                isMobile={isMobile}
+                cardWidth={isTablet ? '100%' : 355}
+                cardMinWidth={isTablet ? '100%' : 355}
+                cardFlex={isTablet ? '0 0 100%' : '0 0 355px'}
+              >
                 <HighlightPlayerCard
                   name={highlights?.mostImproved?.name}
                   level={highlights?.mostImproved?.level}
@@ -999,7 +1017,14 @@ const ClubDashboard = () => {
                 />
               </QuickStatHighlight>
 
-              <QuickStatHighlight title="Most Attempted Drill" delay={0.4} isMobile={isMobile}>
+              <QuickStatHighlight
+                title="Most Attempted Drill"
+                delay={0.4}
+                isMobile={isMobile}
+                cardWidth={isTablet ? '100%' : 355}
+                cardMinWidth={isTablet ? '100%' : 355}
+                cardFlex={isTablet ? '0 0 100%' : '0 0 355px'}
+              >
                 <Box sx={{ position: 'relative', minHeight: 76, pr: isMobile ? '102px' : '126px', display: 'flex', alignItems: 'center' }}>
                   <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px', lineHeight: 1.1, maxWidth: '100%' }}>
                     {highlights?.mostAttemptedDrill?.name || '—'}
