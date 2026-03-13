@@ -964,24 +964,27 @@ const ClubDashboard = () => {
               display: 'flex',
               gap: '10px',
               flexDirection: isMobile ? 'row' : { xs: 'column', md: 'row' },
-              ...(isMobile && {
+              ...(isPhone && {
                 overflowX: 'auto',
                 pb: 1,
-                // Phone keeps fixed 355px cards; tablet cards stretch to full row width.
-                '& > *': isPhone
-                  ? { width: '355px', minWidth: '355px', flex: '0 0 auto' }
-                  : { width: '100%', minWidth: '100%', flex: '0 0 100%' },
+                // Phone keeps fixed-width cards as side-scroll carousel.
+                '& > *': { width: '355px', minWidth: '355px', flex: '0 0 auto' },
                 '&::-webkit-scrollbar': { height: 4 },
                 '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(255,255,255,0.3)', borderRadius: 2 },
+              }),
+              ...(isTablet && {
+                // Tablet: all three cards share one row width (match period switcher width).
+                overflowX: 'visible',
+                '& > *': { width: 'auto', minWidth: 0, flex: '1 1 0' },
               }),
             }}>
               <QuickStatHighlight
                 title="Top Performer"
                 delay={0.2}
                 isMobile={isMobile}
-                cardWidth={isTablet ? '100%' : 355}
-                cardMinWidth={isTablet ? '100%' : 355}
-                cardFlex={isTablet ? '0 0 100%' : '0 0 355px'}
+                cardWidth={isPhone ? 355 : 'auto'}
+                cardMinWidth={isPhone ? 355 : 0}
+                cardFlex={isPhone ? '0 0 355px' : '1 1 0'}
               >
                 <HighlightPlayerCard
                   name={highlights?.topPerformer?.name}
@@ -1000,9 +1003,9 @@ const ClubDashboard = () => {
                 title="Most Improved Player"
                 delay={0.3}
                 isMobile={isMobile}
-                cardWidth={isTablet ? '100%' : 355}
-                cardMinWidth={isTablet ? '100%' : 355}
-                cardFlex={isTablet ? '0 0 100%' : '0 0 355px'}
+                cardWidth={isPhone ? 355 : 'auto'}
+                cardMinWidth={isPhone ? 355 : 0}
+                cardFlex={isPhone ? '0 0 355px' : '1 1 0'}
               >
                 <HighlightPlayerCard
                   name={highlights?.mostImproved?.name}
@@ -1021,9 +1024,9 @@ const ClubDashboard = () => {
                 title="Most Attempted Drill"
                 delay={0.4}
                 isMobile={isMobile}
-                cardWidth={isTablet ? '100%' : 355}
-                cardMinWidth={isTablet ? '100%' : 355}
-                cardFlex={isTablet ? '0 0 100%' : '0 0 355px'}
+                cardWidth={isPhone ? 355 : 'auto'}
+                cardMinWidth={isPhone ? 355 : 0}
+                cardFlex={isPhone ? '0 0 355px' : '1 1 0'}
               >
                 <Box sx={{ position: 'relative', minHeight: 76, pr: isMobile ? '102px' : '126px', display: 'flex', alignItems: 'center' }}>
                   <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.05px', lineHeight: 1.1, maxWidth: '100%' }}>
