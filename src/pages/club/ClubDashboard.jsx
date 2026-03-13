@@ -607,7 +607,7 @@ const ClubDashboard = () => {
   const { clubId } = useParams();
   const navigate = useNavigate();
   const activeContext = useSelector(selectActiveContext);
-  const isMobile = useMediaQuery("(max-width:767px)");
+  const isMobile = useMediaQuery("(max-width:1199px)");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dashboardData, setDashboardData] = useState(null);

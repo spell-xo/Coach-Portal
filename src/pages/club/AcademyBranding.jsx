@@ -68,7 +68,8 @@ const AcademyBranding = () => {
   const { clubId } = useParams();
   const navigate = useNavigate();
   const activeContext = useSelector(selectActiveContext);
-  const isMobile = useMediaQuery("(max-width:767px)");
+  const isPhone = useMediaQuery("(max-width:767px)");
+  const isHandheld = useMediaQuery("(max-width:1199px)");
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -262,11 +263,11 @@ const AcademyBranding = () => {
   const heroDisplay = newHeroPreview || selectedReadyHeroVariant || currentHeroUrl;
 
   const content = (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: isMobile ? "20px" : "28px", pb: isMobile ? "110px" : 0 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: isHandheld ? "20px" : "28px", pb: isHandheld ? "110px" : 0 }}>
       {/* Header */}
       <Box
         sx={
-          isMobile
+          isHandheld
             ? {
                 display: "flex",
                 alignItems: "flex-start",
@@ -278,14 +279,14 @@ const AcademyBranding = () => {
         }
       >
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography sx={{ fontSize: isMobile ? 20 : 24, fontWeight: 600, color: "#000" }}>
+          <Typography sx={{ fontSize: isHandheld ? (isPhone ? 20 : 22) : 24, fontWeight: 600, color: "#000" }}>
             Academy Branding
           </Typography>
-          <Typography sx={{ fontSize: isMobile ? 13 : 16, color: "#545963", mt: "4px" }}>
+          <Typography sx={{ fontSize: isHandheld ? (isPhone ? 13 : 14) : 16, color: "#545963", mt: "4px" }}>
             Update your club logo and dashboard header background. Changes will be visible to all coaches in your academy.
           </Typography>
         </Box>
-        {isMobile && (
+        {isHandheld && (
           <IconButton
             onClick={handleCancel}
             sx={{
@@ -320,7 +321,7 @@ const AcademyBranding = () => {
             fontSize: 15,
             fontWeight: 500,
             color: "#000",
-            width: isMobile ? "100%" : 415,
+            width: isHandheld ? "100%" : 415,
           }}
         />
       </Box>
@@ -330,7 +331,7 @@ const AcademyBranding = () => {
         <Typography sx={{ fontSize: 18, fontWeight: 500, color: "#667085", mb: "12px" }}>
           Academy Logo
         </Typography>
-        <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "flex-start" : "center", gap: "16px" }}>
+        <Box sx={{ display: "flex", flexDirection: isHandheld ? "column" : "row", alignItems: isHandheld ? "flex-start" : "center", gap: "16px" }}>
           <Avatar
             src={badgeDisplay}
             sx={{ width: 80, height: 80, bgcolor: "#f3f4f6", border: "1px solid #ebebeb", fontSize: 28, color: "#545963" }}
@@ -374,16 +375,16 @@ const AcademyBranding = () => {
         <Typography sx={{ fontSize: 18, fontWeight: 500, color: "#667085", mb: "12px" }}>
           Title Background
         </Typography>
-        <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: "12px", alignItems: "stretch" }}>
+        <Box sx={{ display: "flex", flexDirection: isHandheld ? "column" : "row", gap: "12px", alignItems: "stretch" }}>
           {heroDisplay ? (
             <Box
               component="img"
               src={heroDisplay}
               alt="Header background"
               sx={{
-                width: isMobile ? "100%" : 320,
-                height: isMobile ? 140 : "auto",
-                minHeight: isMobile ? 140 : 170,
+                width: isHandheld ? "100%" : 320,
+                height: isHandheld ? 140 : "auto",
+                minHeight: isHandheld ? 140 : 170,
                 objectFit: "cover",
                 borderRadius: "7.5px",
                 border: "1px solid #ebebeb",
@@ -466,8 +467,8 @@ const AcademyBranding = () => {
                   onClick={() => handleReadyVariantSelect(variant.url)}
                   sx={{
                     position: "relative",
-                    width: isMobile ? 284 : 336,
-                    height: isMobile ? 160 : 192,
+                    width: isPhone ? 284 : isHandheld ? 336 : 336,
+                    height: isPhone ? 160 : isHandheld ? 192 : 192,
                     borderRadius: "8px",
                     border: selected ? "2px solid #1CC900" : "1px solid #EAECF0",
                     overflow: "hidden",
@@ -508,7 +509,7 @@ const AcademyBranding = () => {
       </Box>
 
       {/* Action Buttons */}
-      {!isMobile && <Box sx={{ display: "flex", gap: "10px", mt: "8px" }}>
+      {!isHandheld && <Box sx={{ display: "flex", gap: "10px", mt: "8px" }}>
         <Button
           onClick={handleSave}
           disabled={!hasChanges || saving}
@@ -602,9 +603,9 @@ const AcademyBranding = () => {
   );
 
   return (
-    <AppLayout hideMobileBottomBar={isMobile}>
-      <Box sx={{ p: isMobile ? "15px" : "20px", width: "100%", bgcolor: "#fff", minHeight: "100%" }}>
-        {isMobile ? (
+    <AppLayout hideMobileBottomBar={isHandheld}>
+      <Box sx={{ p: isHandheld ? "15px" : "20px", width: "100%", bgcolor: "#fff", minHeight: "100%" }}>
+        {isHandheld ? (
           content
         ) : (
           <Box
@@ -619,7 +620,7 @@ const AcademyBranding = () => {
             {content}
           </Box>
         )}
-        {isMobile && mobileBottomActions}
+        {isHandheld && mobileBottomActions}
       </Box>
     </AppLayout>
   );

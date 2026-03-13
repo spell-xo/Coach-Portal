@@ -50,7 +50,7 @@ const teamColours = [
 const CreateTeam = () => {
   const { clubId } = useParams();
   const navigate = useNavigate();
-  const isMobile = useMediaQuery("(max-width:767px)");
+  const isHandheld = useMediaQuery("(max-width:1199px)");
   const [loading, setLoading] = useState(false);
   const [loadingCoaches, setLoadingCoaches] = useState(true);
   const [error, setError] = useState(null);
@@ -136,7 +136,7 @@ const CreateTeam = () => {
       id="create-team-form"
       component="form"
       onSubmit={handleSubmit}
-      sx={{ mt: isMobile ? 0 : 3, pb: isMobile ? "98px" : 0 }}>
+      sx={{ mt: isHandheld ? 0 : 3, pb: isHandheld ? "98px" : 0 }}>
       <TextField
         fullWidth
         label="Team Name"
@@ -264,7 +264,7 @@ const CreateTeam = () => {
         placeholder="Optional team description..."
       />
 
-      {!isMobile && (
+      {!isHandheld && (
         <Box sx={{ mt: 3, display: "flex", gap: 2, justifyContent: "flex-end" }}>
           <Button
             variant="outlined"
@@ -338,8 +338,8 @@ const CreateTeam = () => {
   );
 
   return (
-    <AppLayout hideMobileBottomBar={isMobile}>
-      {isMobile ? (
+    <AppLayout hideMobileBottomBar={isHandheld}>
+      {isHandheld ? (
         <Box sx={{ p: "15px", width: "100%", bgcolor: "#fff", minHeight: "100%" }}>
           <Box sx={{ display: "flex", alignItems: "flex-start", gap: "10px", borderBottom: "1px solid #EBEBEB", pb: "12px", mb: "12px" }}>
             <Box sx={{ flex: 1, minWidth: 0 }}>

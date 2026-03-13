@@ -9,7 +9,7 @@ import "../assets/styles/global.scss";
 const AppLayout = ({ children, hideMobileBottomBar = false }) => {
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
-  const isMobile = useMediaQuery("(max-width:767px)");
+  const isHandheld = useMediaQuery("(max-width:1199px)");
   const prevIsTabletRef = useRef(isTablet);
 
   const [openDrawer, setOpenDrawer] = useState(() => {
@@ -36,14 +36,14 @@ const AppLayout = ({ children, hideMobileBottomBar = false }) => {
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f8f8f8" }}>
-      {!isMobile && <Sidebar open={openDrawer} close={handleDrawer} />}
+      {!isHandheld && <Sidebar open={openDrawer} close={handleDrawer} />}
 
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           minWidth: 0,
-          pb: isMobile ? "72px" : 3,
+          pb: isHandheld ? "72px" : 3,
         }}
         className="main-content"
       >
@@ -51,7 +51,7 @@ const AppLayout = ({ children, hideMobileBottomBar = false }) => {
         {children}
       </Box>
 
-      {isMobile ? (hideMobileBottomBar ? null : <MobileBottomBar />) : <BottomBar />}
+      {isHandheld ? (hideMobileBottomBar ? null : <MobileBottomBar />) : <BottomBar />}
     </Box>
   );
 };

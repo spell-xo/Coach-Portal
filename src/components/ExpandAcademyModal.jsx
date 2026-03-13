@@ -35,7 +35,7 @@ const ExpandAcademyModal = ({ open, onClose }) => {
   const activeContext = useSelector(selectActiveContext);
   const isClubContext = useSelector(selectIsClubContext);
   const clubId = activeContext?.clubId;
-  const isMobile = useMediaQuery("(max-width:767px)");
+  const isMobile = useMediaQuery("(max-width:1199px)");
 
   const handleAction = (path) => {
     onClose();
