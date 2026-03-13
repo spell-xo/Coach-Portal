@@ -341,7 +341,12 @@ const AcademyBranding = () => {
       {success && <Alert severity="success">Changes saved successfully!</Alert>}
 
       {/* Academy Name */}
-      <Box>
+      <Box
+        sx={{
+          pb: isHandheld ? "18px" : "14px",
+          borderBottom: "1px solid #EBEBEB",
+        }}
+      >
         <Typography sx={{ fontSize: 18, fontWeight: 500, color: "#667085", mb: "8px" }}>
           Academy Name
         </Typography>
@@ -364,6 +369,7 @@ const AcademyBranding = () => {
       {/* Academy Logo */}
       <Box
         sx={{
+          pt: isHandheld ? "18px" : "14px",
           pb: isHandheld ? "18px" : "14px",
           borderBottom: "1px solid #EBEBEB",
         }}
